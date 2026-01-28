@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+* {
+    font-family: "Share Tech Mono", monospace;
+}
+
+body {
+    background-color: midnightblue;
+    z-index: 1;
+}
+
+h1 {
+    font-family: "Share Tech Mono", monospace;
+    color: white;
+}
+
+h3 {
+    color: white;
+    opacity: 75%;
+}
+
+#landing-name {
+    font-size: 4em;
+    margin: 0;
+    padding: 0;}
+
+#landing-container {
+    /* background-color: red; */
+    text-align: center;
+    margin: auto;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    width: 80%; /* Adjust width as needed */
+    max-width: 600px; /* Optional: set a max width */
+    height: 100vh; /* Full viewport height */
+}
+
+#landing-menu {
+    background-color: green;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 50px;
+    margin-bottom: 0;
+    overflow: visible;
+    z-index: 10;
+}
+
+.menu-cows {
+    background-color: blue;
+    margin: 10px;
+    color: white;
+}
+
+#cow-portfolio {
+    position: absolute;
+    top: 600px;
+    left: 300px;
+}
+
+#cow-qualifications {
+    position: absolute;
+    top: 650px;
+    left: 650px;
+}
+
+#cow-service {
+    position: absolute;
+    top: 580px;
+    right: 300px;
+}
+
+#container3D {
+    position: fixed;
+    inset: 0;
+    /* background-color: blueviolet; */
+    z-index: 100;
+    pointer-events: none; /* FIXME: animation when pointed at? */
+
+}

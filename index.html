@@ -2,13 +2,33 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=<device-width>, initial-scale=1.0">
-    <title>Home</title>
-    <link rel="stylesheet" type="text/css" href="styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landing</title>
+    <link rel="stylesheet" href="alienstyle.css">
+    <script type="importmap">
+    {
+    "imports": {
+        "three": "https://cdn.skypack.dev/three@0.129.0/build/three.module.js",
+        "three/examples/jsm/loaders/GLTFLoader.js": "https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/GLTFLoader.js"
+    }
+    }
+    </script>
+
 </head>
 <body>
-    <head>
-        <center>Hello Artists!</center>
-    </head>
+    <div id="landing-container">
+        <h1 id="landing-name">Eden Kim</h1>
+        <h3 id="landing-subtitle">Computer Science '26 | Game Development</h3>
+    </div>
+
+    <div id="landing-menu">
+        <a class="menu-cows" id="cow-portfolio" href="portfolio.html">Portfolio</a>
+        <a class="menu-cows" id="cow-qualifications" href="qualifications.html">Qualifications</a>
+        <a class="menu-cows" id="cow-service" href="service.html">Service</a>
+    </div>
+    
 </body>
+
+<div id="container3D"></div>
+<script type="module" src="app.js"></script>
 </html>
