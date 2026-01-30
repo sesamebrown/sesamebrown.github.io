@@ -50,35 +50,76 @@ h3 {
     z-index: 10;
 }
 
-.menu-cows {
+/* .menu-cows {
     background-color: blue;
     margin: 10px;
     color: white;
+} */
+#cow-about {
+    position: absolute;
+    top: 600px;
+    left: 270px;
 }
 
 #cow-portfolio {
     position: absolute;
-    top: 600px;
-    left: 300px;
+    top: 660px;
+    left: 550px;
 }
 
 #cow-qualifications {
     position: absolute;
-    top: 650px;
-    left: 650px;
+    top: 570px;
+    left: 800px;
 }
 
 #cow-service {
     position: absolute;
-    top: 580px;
-    right: 300px;
+    top: 640px;
+    left: 1200px;
 }
 
 #container3D {
-    position: fixed;
+    position: absolute;
     inset: 0;
     /* background-color: blueviolet; */
     z-index: 100;
     pointer-events: none; /* FIXME: animation when pointed at? */
+
+}
+
+#landing-container {
+  perspective: 800px;
+}
+
+.heading {
+  display: inline-block;
+  transform-style: preserve-3d;
+  will-change: transform;
+
+  /* If you're using metallic gradient */
+  background: linear-gradient(
+    120deg,
+    #777 0%,
+    #eee 20%,
+    #999 40%,
+    #fff 50%,
+    #999 60%,
+    #777 100%
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+
+  /* IMPORTANT FIX */
+  color: #fff; /* fallback so it never disappears */
+}
+
+/* COWS */
+
+.menu-cows {
+    background-color: thistle;
+    position: absolute;
+    cursor: pointer;
+    will-change: transform;
 
 }
