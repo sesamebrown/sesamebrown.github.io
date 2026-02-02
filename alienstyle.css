@@ -39,7 +39,7 @@ h3 {
 }
 
 #landing-menu {
-    background-color: green;
+    /* background-color: green; */
     display: flex;
     justify-content: space-between;
     align-items: center;
