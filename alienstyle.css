@@ -5,19 +5,20 @@
 }
 
 body {
-    /* background-color: white; */
+    background-color: midnightblue;
     z-index: 1;
+    color: white;
 }
 
 h1 {
     font-family: "Share Tech Mono", monospace;
-    color: midnightblue;
+    color: white;
     z-index: 1;
 }
 
 h3 {
-    color: midnightblue;
-    opacity: 75%;
+    color: white;
+    /* opacity: 75%; */
 }
 
 #landing-name {
@@ -50,11 +51,6 @@ h3 {
     z-index: 10;
 }
 
-/* .menu-cows {
-    background-color: blue;
-    margin: 10px;
-    color: white;
-} */
 #cow-about {
     position: absolute;
     top: 600px;
@@ -117,9 +113,10 @@ h3 {
 /* COWS */
 
 .menu-cows {
-    background-color: thistle;
+    /* background-color: thistle; */
     position: absolute;
     cursor: pointer;
     will-change: transform;
-
+    color: white;
+    text-decoration: none;
 }
