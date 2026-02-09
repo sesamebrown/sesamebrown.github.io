@@ -8,6 +8,7 @@ body {
     background-color: midnightblue;
     z-index: 1;
     color: white;
+    padding: 20px;
 }
 
 h1 {
@@ -119,4 +120,32 @@ h3 {
     will-change: transform;
     color: white;
     text-decoration: none;
+}
+
+p {
+    margin-bottom: 50px;
+}
+
+ul {
+    margin-bottom: 50px;
+}
+
+#portrait-image {
+    padding: 30px;
+}
+
+#about-me-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 50px;
+    width: 80%;
+}
+
+#ufo-image {
+    position: absolute;
+    top: 50px;
+    right: 200px;
+    width: 100px;
+    z-index: 0;
 }
