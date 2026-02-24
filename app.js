@@ -22,7 +22,7 @@ let ufoIdleMoveTween;
 let ufoIdleRotateTween;
 
 const loader = new GLTFLoader();
-loader.load('./glb/UFOscene.glb',
+loader.load('/glb/UFOscene.glb',
     function (gltf) {
         UFOscene = gltf.scene;
         // UFOscene.rotation.set(0, Math.PI/5, 0);
@@ -92,7 +92,9 @@ loader.load('./glb/UFOscene.glb',
         modelMove();
     },
 function (xhr) {},
-function (error) {}
+function (error) {
+    console.error("GLTF Load Error:", error);
+}
 );
 
 
