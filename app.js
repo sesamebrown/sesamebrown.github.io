@@ -19,6 +19,13 @@ camera.position.z = 50;
 camera.position.y = 5;
 camera.rotateX(-0.1);
 
+// light
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+scene.add(ambientLight);
+const topLight = new THREE.DirectionalLight(0xffffff, 0.2);
+topLight.position.set(500, 500, 500);
+scene.add(topLight);
+
 // renderer
 const renderer = new THREE.WebGLRenderer({alpha: true});
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -30,8 +37,14 @@ const keys = {
     d: false
 };
 
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+window.addEventListener('resize', () => {
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+
+    camera.updateProjectionMatrix();
+
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
 
 // loader
 const loader = new GLTFLoader();
@@ -40,15 +53,14 @@ loader.load('/glb/ufo.glb',
         ufo = gltf.scene;
         scene.add(ufo);
 
-        mixer = new THREE.AnimationMixer(UFOscene);
-            mixer.timeScale = 0.5;
+        mixer = new THREE.AnimationMixer(ufo);
+        mixer.timeScale = 0.5;
+
+        if (gltf.animations.length > 0) {
+            const action = mixer.clipAction(gltf.animations[0]);
+            action.play();
+        }
     },
-    function (xhr) {
-        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-    },
-    function (error) {
-            console.error("GLTF Load Error:", error);
-    }
 );
 
 // keyboard input
@@ -100,12 +112,19 @@ function checkHover() {
 }
 
 // animation
+const clock = new THREE.Clock();
+
 const animate = () => {
     requestAnimationFrame(animate);
     updateMovement();
     checkHover();
     renderer.render(scene, camera);
-    if (mixer) mixer.update(0.02);
+    
+    const delta = clock.getDelta();
+    if (mixer) mixer.update(delta);
+    const speed = 5 * delta;
+
+    updateMovement(delta);
 };
 animate();
 
