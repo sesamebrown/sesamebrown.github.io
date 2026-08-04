@@ -7,14 +7,16 @@ const scene = new THREE.Scene();
 let ufo;
 let mixer;
 let bodyMixer;
-let beamMixer;
 let idleRootAction;
 let idleBodyAction;
-let idleBeamAction;
 let hoverRootAction;
-let hoverBeamAction;
+let beamObject;
 let isHovered = false;
 let isReady = false;
+
+const BEAM_HIDDEN_SCALE = 0.01;
+const BEAM_VISIBLE_SCALE = 1;
+const BEAM_TWEEN_DURATION = 1;
 
 // camera
 const camera = new THREE.PerspectiveCamera(
@@ -62,15 +64,19 @@ loader.load('/glb/ufo_3.glb',
         const root = gltf.scene;
         const ufoRoot = root.getObjectByName('UFO_Root') || root;
         const body = root.getObjectByName('UFO') || ufoRoot;
-        const beam = root.getObjectByName('Beam') || ufoRoot;
+        beamObject = root.getObjectByName('Beam') || null;
 
         scene.add(root);
         ufo = ufoRoot;
 
+        if (beamObject) {
+            beamObject.scale.y = BEAM_HIDDEN_SCALE;
+        } else {
+            console.log('No Beam object found in this UFO GLTF file.');
+        }
+
         mixer = new THREE.AnimationMixer(ufoRoot);
         bodyMixer = new THREE.AnimationMixer(body);
-        beamMixer = new THREE.AnimationMixer(beam);
-        beamMixer.timeScale = 0.5;
 
         mixer.timeScale = 0.5;
         bodyMixer.timeScale = 0.5;
@@ -78,22 +84,17 @@ loader.load('/glb/ufo_3.glb',
         if (gltf.animations.length > 0) {
             console.log('UFO animations:', gltf.animations.map((clip) => clip.name));
 
-            const idleRootClip = gltf.animations[1];
-            const idleBodyClip = gltf.animations[5] || gltf.animations[0];
-            const idleBeamClip = gltf.animations[3] || gltf.animations[0]; // BeamOff
-            const hoverRootClip = gltf.animations[4] || idleRootClip;
-            const hoverBeamClip = gltf.animations[2] || idleBodyClip; // BeamOn
+            const idleRootClip = gltf.animations[0]; // UFO_upDown
+            const idleBodyClip = gltf.animations[3] || gltf.animations[0]; // Body_rotate
+            const hoverRootClip = gltf.animations[0] || idleRootClip;
 
             idleRootAction = mixer.clipAction(idleRootClip);
             idleBodyAction = bodyMixer.clipAction(idleBodyClip);
-            idleBeamAction = beamMixer.clipAction(idleBeamClip);
             hoverRootAction = mixer.clipAction(hoverRootClip);
-            hoverBeamAction = beamMixer.clipAction(hoverBeamClip);
 
             idleRootAction.setLoop(THREE.LoopRepeat, Infinity);
             idleBodyAction.setLoop(THREE.LoopRepeat, Infinity);
             hoverRootAction.setLoop(THREE.LoopRepeat, Infinity);
-            // hoverBeamAction.setLoop(THREE.LoopRepeat, Infinity);
 
             playIdle();
             isReady = true;
@@ -135,22 +136,40 @@ window.addEventListener('mousemove', (event) => {
 function playIdle() {
     if (!idleRootAction || !idleBodyAction) return;
 
-    idleRootAction.reset().play();
-    idleBodyAction.reset().play();
-    idleBeamAction.reset().play();
+    idleRootAction.play();
+    idleBodyAction.play();
 
-    if (hoverRootAction) hoverRootAction.stop();
-    if (hoverBeamAction) hoverBeamAction.stop();
+    playBeamShrink();
+}
+
+function playBeamGrow() {
+    if (!beamObject) return;
+
+    gsap.to(beamObject.scale, {
+        x: BEAM_VISIBLE_SCALE,
+        y: BEAM_VISIBLE_SCALE,
+        z: BEAM_VISIBLE_SCALE,
+        duration: BEAM_TWEEN_DURATION,
+        ease: 'power2.out',
+    });
+}
+
+function playBeamShrink() {
+    if (!beamObject) return;
+
+    gsap.to(beamObject.scale, {
+        x: BEAM_HIDDEN_SCALE,
+        y: BEAM_HIDDEN_SCALE,
+        z: BEAM_HIDDEN_SCALE,
+        duration: BEAM_TWEEN_DURATION,
+        ease: 'power2.out',
+    });
 }
 
 function playHoverState() {
-    if (!hoverRootAction || !hoverBeamAction) return;
+    if (!hoverRootAction) return;
 
-    // hoverRootAction.reset().play();
-    hoverBeamAction.reset().play();
-
-    // if (idleRootAction) idleRootAction.stop();
-    // if (idleBodyAction) idleBodyAction.stop();
+    playBeamGrow();
 }
 
 function checkHover() {
