@@ -6,6 +6,15 @@ import { gsap } from 'https://cdn.jsdelivr.net/npm/gsap@3.6.1/index.js';
 const scene = new THREE.Scene();
 let ufo;
 let mixer;
+let bodyMixer;
+let beamMixer;
+let idleRootAction;
+let idleBodyAction;
+let idleBeamAction;
+let hoverRootAction;
+let hoverBeamAction;
+let isHovered = false;
+let isReady = false;
 
 // camera
 const camera = new THREE.PerspectiveCamera(
@@ -48,17 +57,48 @@ window.addEventListener('resize', () => {
 
 // loader
 const loader = new GLTFLoader();
-loader.load('/glb/ufo.glb',
+loader.load('/glb/ufo_3.glb',
     function (gltf) {
-        ufo = gltf.scene;
-        scene.add(ufo);
+        const root = gltf.scene;
+        const ufoRoot = root.getObjectByName('UFO_Root') || root;
+        const body = root.getObjectByName('UFO') || ufoRoot;
+        const beam = root.getObjectByName('Beam') || ufoRoot;
 
-        mixer = new THREE.AnimationMixer(ufo);
+        scene.add(root);
+        ufo = ufoRoot;
+
+        mixer = new THREE.AnimationMixer(ufoRoot);
+        bodyMixer = new THREE.AnimationMixer(body);
+        beamMixer = new THREE.AnimationMixer(beam);
+        beamMixer.timeScale = 0.5;
+
         mixer.timeScale = 0.5;
+        bodyMixer.timeScale = 0.5;
 
         if (gltf.animations.length > 0) {
-            const action = mixer.clipAction(gltf.animations[0]);
-            action.play();
+            console.log('UFO animations:', gltf.animations.map((clip) => clip.name));
+
+            const idleRootClip = gltf.animations[1];
+            const idleBodyClip = gltf.animations[5] || gltf.animations[0];
+            const idleBeamClip = gltf.animations[3] || gltf.animations[0]; // BeamOff
+            const hoverRootClip = gltf.animations[4] || idleRootClip;
+            const hoverBeamClip = gltf.animations[2] || idleBodyClip; // BeamOn
+
+            idleRootAction = mixer.clipAction(idleRootClip);
+            idleBodyAction = bodyMixer.clipAction(idleBodyClip);
+            idleBeamAction = beamMixer.clipAction(idleBeamClip);
+            hoverRootAction = mixer.clipAction(hoverRootClip);
+            hoverBeamAction = beamMixer.clipAction(hoverBeamClip);
+
+            idleRootAction.setLoop(THREE.LoopRepeat, Infinity);
+            idleBodyAction.setLoop(THREE.LoopRepeat, Infinity);
+            hoverRootAction.setLoop(THREE.LoopRepeat, Infinity);
+            // hoverBeamAction.setLoop(THREE.LoopRepeat, Infinity);
+
+            playIdle();
+            isReady = true;
+        } else {
+            console.log('No animations found in this UFO GLTF file.');
         }
     },
 );
@@ -92,22 +132,44 @@ window.addEventListener('mousemove', (event) => {
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 });
 
-function checkHover() {
+function playIdle() {
+    if (!idleRootAction || !idleBodyAction) return;
 
-    if (!ufo) return;
+    idleRootAction.reset().play();
+    idleBodyAction.reset().play();
+    idleBeamAction.reset().play();
+
+    if (hoverRootAction) hoverRootAction.stop();
+    if (hoverBeamAction) hoverBeamAction.stop();
+}
+
+function playHoverState() {
+    if (!hoverRootAction || !hoverBeamAction) return;
+
+    // hoverRootAction.reset().play();
+    hoverBeamAction.reset().play();
+
+    // if (idleRootAction) idleRootAction.stop();
+    // if (idleBodyAction) idleBodyAction.stop();
+}
+
+function checkHover() {
+    if (!ufo || !isReady) return;
 
     raycaster.setFromCamera(mouse, camera);
 
     const intersects = raycaster.intersectObject(ufo, true);
+    const nextHovered = intersects.length > 0;
 
-    if (intersects.length > 0) {
+    if (nextHovered !== isHovered) {
+        isHovered = nextHovered;
 
-        // Mouse is hovering UFO
-
-        console.log("hovering!");
-
-        ufo.rotation.y += 0.02;
-
+        if (isHovered) {
+            console.log('mouse on');
+            playHoverState();
+        } else {
+            playIdle();
+        }
     }
 }
 
@@ -122,6 +184,7 @@ const animate = () => {
     
     const delta = clock.getDelta();
     if (mixer) mixer.update(delta);
+    if (bodyMixer) bodyMixer.update(delta);
     const speed = 5 * delta;
 
     updateMovement(delta);
