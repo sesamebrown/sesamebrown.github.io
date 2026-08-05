@@ -6,6 +6,8 @@ import { DustMotesEffect } from 'https://cdn.jsdelivr.net/npm/three-low-poly@1.2
 
 // scene
 const scene = new THREE.Scene();
+const pilot = new THREE.Object3D(); // WASD moves this; the animated UFO is nested inside it
+scene.add(pilot);
 let ufo;
 let mixer;
 let bodyMixer;
@@ -94,7 +96,7 @@ loader.load('/glb/ufo_3.glb',
         const body = root.getObjectByName('UFO') || ufoRoot;
         beamObject = root.getObjectByName('Beam') || null;
 
-        scene.add(root);
+        pilot.add(root);
 
         ufo = ufoRoot;
 
@@ -192,49 +194,37 @@ const clock = new THREE.Clock();
 
 const animate = () => {
     requestAnimationFrame(animate);
-    updateMovement();
     controls.update();
+    updateMovement();
     renderer.render(scene, camera);
-    
+
     const delta = clock.getDelta();
     if (mixer) mixer.update(delta);
     if (bodyMixer) bodyMixer.update(delta);
     if (dust) dust.update(delta);
-    const speed = 5 * delta;
-
-    updateMovement(delta);
 };
 animate();
 
 const speed = 0.1;
+const cameraRight = new THREE.Vector3();
+const cameraUp = new THREE.Vector3();
 
 function updateMovement() {
     if (!ufo) return;
-    let moving = false;
 
-    if (keys.w) {
-        ufo.position.z -= speed;
-        moving = true;
-    }
+    // Camera's own right/up axes, so WASD stays in the on-screen plane
+    // no matter how OrbitControls has orbited the camera.
+    cameraRight.setFromMatrixColumn(camera.matrixWorld, 0);
+    cameraUp.setFromMatrixColumn(camera.matrixWorld, 1);
 
-    if (keys.s) {
-        ufo.position.z += speed;
-        moving = true;
-    }
-
-    if (keys.a) {
-        ufo.position.x -= speed;
-        moving = true;
-    }
-
-    if (keys.d) {
-        ufo.position.x += speed;
-        moving = true;
-    }
+    if (keys.w) pilot.position.addScaledVector(cameraUp, speed);
+    if (keys.s) pilot.position.addScaledVector(cameraUp, -speed);
+    if (keys.a) pilot.position.addScaledVector(cameraRight, -speed);
+    if (keys.d) pilot.position.addScaledVector(cameraRight, speed);
 
     // If idle for 3 seconds
     if (Date.now() - lastInputTime > 3000) {
-        ufo.position.lerp(idlePosition, 0.02);
+        pilot.position.lerp(idlePosition, 0.02);
     }
 }
 
