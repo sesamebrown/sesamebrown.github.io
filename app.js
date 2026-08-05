@@ -11,11 +11,10 @@ let mixer;
 let bodyMixer;
 let idleRootAction;
 let idleBodyAction;
-let hoverRootAction;
 let beamObject;
-let isHovered = false;
 let isReady = false;
 let dust;
+let beamOn = false;
 
 const BEAM_HIDDEN_SCALE = 0.01;
 const BEAM_VISIBLE_SCALE = 1;
@@ -116,15 +115,12 @@ loader.load('/glb/ufo_3.glb',
 
             const idleRootClip = gltf.animations[0]; // UFO_upDown
             const idleBodyClip = gltf.animations[3] || gltf.animations[0]; // Body_rotate
-            const hoverRootClip = gltf.animations[0] || idleRootClip;
 
             idleRootAction = mixer.clipAction(idleRootClip);
             idleBodyAction = bodyMixer.clipAction(idleBodyClip);
-            hoverRootAction = mixer.clipAction(hoverRootClip);
 
             idleRootAction.setLoop(THREE.LoopRepeat, Infinity);
             idleBodyAction.setLoop(THREE.LoopRepeat, Infinity);
-            hoverRootAction.setLoop(THREE.LoopRepeat, Infinity);
 
             playIdle();
             isReady = true;
@@ -137,6 +133,14 @@ loader.load('/glb/ufo_3.glb',
 // keyboard input
 window.addEventListener('keydown', (e) => {
     const key = e.key.toLowerCase();
+
+    if (key === 'q') {
+        if (e.repeat) return;
+
+        beamOn = !beamOn;
+        beamOn ? playBeamGrow() : playBeamShrink();
+        return;
+    }
 
     if (keys.hasOwnProperty(key)) {
         keys[key] = true;
@@ -152,24 +156,11 @@ window.addEventListener('keyup', (e) => {
     }
 });
 
-// mouse input
-const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
-
-window.addEventListener('mousemove', (event) => {
-
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-});
-
 function playIdle() {
     if (!idleRootAction || !idleBodyAction) return;
 
     idleRootAction.play();
     idleBodyAction.play();
-
-    playBeamShrink();
 }
 
 function playBeamGrow() {
@@ -196,39 +187,12 @@ function playBeamShrink() {
     });
 }
 
-function playHoverState() {
-    if (!hoverRootAction) return;
-
-    playBeamGrow();
-}
-
-function checkHover() {
-    if (!ufo || !isReady) return;
-
-    raycaster.setFromCamera(mouse, camera);
-
-    const intersects = raycaster.intersectObject(ufo, true);
-    const nextHovered = intersects.length > 0;
-
-    if (nextHovered !== isHovered) {
-        isHovered = nextHovered;
-
-        if (isHovered) {
-            console.log('mouse on');
-            playHoverState();
-        } else {
-            playIdle();
-        }
-    }
-}
-
 // animation
 const clock = new THREE.Clock();
 
 const animate = () => {
     requestAnimationFrame(animate);
     updateMovement();
-    checkHover();
     controls.update();
     renderer.render(scene, camera);
     
