@@ -1,8 +1,8 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/loaders/GLTFLoader.js';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/controls/OrbitControls.js';
 import { gsap } from 'https://cdn.jsdelivr.net/npm/gsap@3.6.1/index.js';
 import { DustMotesEffect } from 'https://cdn.jsdelivr.net/npm/three-low-poly@1.2.2/dist/index.mjs';
-
 
 // scene
 const scene = new THREE.Scene();
@@ -29,7 +29,7 @@ const camera = new THREE.PerspectiveCamera(
     1000
 );
 
-camera.position.z = 50;
+camera.position.z = 100;
 camera.position.y = 10;
 camera.rotateX(-0.2);
 
@@ -43,18 +43,16 @@ scene.add(topLight);
 // dust motes
 dust = new DustMotesEffect({
     count: 600,
-    width: 20,
-    height: 20,
-    depth: 20,
+    width: 30,
+    height: 30,
+    depth: 30,
     color: 'white',
     radius: 0.01,
-    settleMin: 0.02,
-    settleMax: 0.05,
+    settleMin: 0,
+    settleMax: 0,
+    waft: 0,
     twinkleMin: 0.2,
     twinkleMax: 2,
-    settleMin: 0.01,
-    settleMax: 0.05,
-    waft: 0.05
 });
 dust.position.set(0, -10, 0);
 scene.add(dust);
@@ -63,6 +61,15 @@ scene.add(dust);
 const renderer = new THREE.WebGLRenderer({alpha: true});
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('container3D').appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 0, 0);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+controls.minDistance = 30;
+controls.maxDistance = 70;
+controls.update();
+
 const keys = {
     w: false,
     a: false,
@@ -89,6 +96,7 @@ loader.load('/glb/ufo_3.glb',
         beamObject = root.getObjectByName('Beam') || null;
 
         scene.add(root);
+
         ufo = ufoRoot;
 
         if (beamObject) {
@@ -221,6 +229,7 @@ const animate = () => {
     requestAnimationFrame(animate);
     updateMovement();
     checkHover();
+    controls.update();
     renderer.render(scene, camera);
     
     const delta = clock.getDelta();
