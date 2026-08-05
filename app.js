@@ -1,6 +1,8 @@
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.129.0/build/three.module.js';
-import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.129.0/examples/jsm/loaders/GLTFLoader.js';
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/loaders/GLTFLoader.js';
 import { gsap } from 'https://cdn.jsdelivr.net/npm/gsap@3.6.1/index.js';
+import { DustMotesEffect } from 'https://cdn.jsdelivr.net/npm/three-low-poly@1.2.2/dist/index.mjs';
+
 
 // scene
 const scene = new THREE.Scene();
@@ -13,6 +15,7 @@ let hoverRootAction;
 let beamObject;
 let isHovered = false;
 let isReady = false;
+let dust;
 
 const BEAM_HIDDEN_SCALE = 0.01;
 const BEAM_VISIBLE_SCALE = 1;
@@ -27,8 +30,8 @@ const camera = new THREE.PerspectiveCamera(
 );
 
 camera.position.z = 50;
-camera.position.y = 5;
-camera.rotateX(-0.1);
+camera.position.y = 10;
+camera.rotateX(-0.2);
 
 // light
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
@@ -36,6 +39,25 @@ scene.add(ambientLight);
 const topLight = new THREE.DirectionalLight(0xffffff, 0.2);
 topLight.position.set(500, 500, 500);
 scene.add(topLight);
+
+// dust motes
+dust = new DustMotesEffect({
+    count: 600,
+    width: 20,
+    height: 20,
+    depth: 20,
+    color: 'white',
+    radius: 0.01,
+    settleMin: 0.02,
+    settleMax: 0.05,
+    twinkleMin: 0.2,
+    twinkleMax: 2,
+    settleMin: 0.01,
+    settleMax: 0.05,
+    waft: 0.05
+});
+dust.position.set(0, -10, 0);
+scene.add(dust);
 
 // renderer
 const renderer = new THREE.WebGLRenderer({alpha: true});
@@ -204,6 +226,7 @@ const animate = () => {
     const delta = clock.getDelta();
     if (mixer) mixer.update(delta);
     if (bodyMixer) bodyMixer.update(delta);
+    if (dust) dust.update(delta);
     const speed = 5 * delta;
 
     updateMovement(delta);
