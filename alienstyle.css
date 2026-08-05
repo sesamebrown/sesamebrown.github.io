@@ -5,11 +5,19 @@
     /* font-family: Arial, Helvetica, sans-serif */
 }
 
+html, body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
 body {
     background-color: black;
     z-index: 1;
     color: white;
     padding: 20px;
+    box-sizing: border-box;
+    display: flex;
 }
 
 h1 {
@@ -42,39 +50,14 @@ h3 {
     flex-direction: column;
     width: 80%; /* Adjust width as needed */
     max-width: 600px; /* Optional: set a max width */
-    height: 100vh; /* Full viewport height */
+    height: 100%; /* Fill the flex row without exceeding it */
 }
 
 #landing-menu {
-    background-color: green;
+    /* background-color: green; */
     margin-right: 20px;
     margin-top: 20px;
 }
-/* 
-#cow-about {
-    position: absolute;
-    top: 600px;
-    left: 270px;
-}
-
-#cow-portfolio {
-    position: absolute;
-    top: 668px;
-    left: 580px;
-    rotate: 3deg;
-}
-
-#cow-qualifications {
-    position: absolute;
-    top: 570px;
-    left: 800px;
-}
-
-#cow-service {
-    position: absolute;
-    top: 640px;
-    left: 1200px;
-} */
 
 #container3D {
     position: absolute;
@@ -98,11 +81,19 @@ h3 {
 
 /* COWS */
 
-.menu-cows {
-    background-color: thistle;
-    position: absolute;
-    cursor: pointer;
-    will-change: transform;
+.menu {
+    /* position: absolute; */
+    margin-left: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    width: 200px;
+    overflow: auto;
+}
+
+.menu-buttons {
+    /* background-color: thistle; */
     color: white;
     text-decoration: none;
     z-index: 3000;
