@@ -30,7 +30,7 @@ window.addEventListener('keyup', (e) => {
 const speed = 0.1;
 const cameraRight = new THREE.Vector3();
 const cameraUp = new THREE.Vector3();
-const idlePosition = new THREE.Vector3(0, 0, 0);
+const idlePosition = new THREE.Vector3(0, -2, 0);
 let lastInputTime = Date.now();
 
 export function updateMovement() {

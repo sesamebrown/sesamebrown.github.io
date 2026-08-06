@@ -12,12 +12,14 @@ html, body {
 }
 
 body {
+    position: relative;
     background-color: black;
     z-index: 1;
     color: white;
     padding: 20px;
     box-sizing: border-box;
     display: flex;
+    align-items: center;
 }
 
 h1 {
@@ -56,7 +58,6 @@ h3 {
 #landing-menu {
     /* background-color: green; */
     margin-right: 20px;
-    margin-top: 20px;
 }
 
 #container3D {
@@ -82,13 +83,16 @@ h3 {
 /* COWS */
 
 .menu {
-    /* position: absolute; */
-    margin-left: 50px;
+    position: absolute;
+    /* top: 20px;
+    bottom: 20px;
+    left: 20px; */
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    height: 100%;
+    align-items: center;
     width: 200px;
+    height: 70%;
     overflow: auto;
 }
 

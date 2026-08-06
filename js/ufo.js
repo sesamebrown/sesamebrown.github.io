@@ -28,6 +28,7 @@ loader.load('/glb/ufo_3.glb',
         const body = root.getObjectByName('UFO') || ufoRoot;
         beamObject = root.getObjectByName('Beam') || null;
 
+        pilot.position.set(0, -2, 0);
         pilot.add(root);
 
         ufo = ufoRoot;
