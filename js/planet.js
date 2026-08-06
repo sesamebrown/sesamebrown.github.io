@@ -12,7 +12,19 @@ if (planetFile) {
         const planet = gltf.scene;
         planet.scale.setScalar(3);
         planet.position.set(0, -25, -10);
+        // planet.rotation.set(0, 0, -Math.PI / 2);
         scene.add(planet);
+
+        // Glow from within: only the textured surface mesh (some planet
+        // exports bundle extra untextured parts, e.g. a leftover UFO/dome —
+        // .map presence is what distinguishes the actual planet surface).
+        planet.traverse((child) => {
+            if (child.isMesh && child.material && child.material.map) {
+                child.material.emissiveMap = child.material.map;
+                child.material.emissive.set('#ffffff');
+                child.material.emissiveIntensity = 1.1;
+            }
+        });
 
         gsap.to(planet.rotation, {
             // x: -Math.PI * 2,
