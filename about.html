@@ -5,9 +5,21 @@
     <title>Eden Kim – Bio & Accessibility Interests</title>
     <link rel="stylesheet" href="alienstyle.css">
     <script type="module" src="js/menu.js"></script>
+    <script type="module" src="app.js"></script>
+    <script type="importmap">
+    {
+    "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/",
+        "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/",
+        "three/tsl": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.tsl.js",
+        "three/webgpu": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.webgpu.js"
+    }
+    }
+    </script>
 </head>
 
-<body>
+<body data-planet="moon.glb">
     <site-menu class="menu" id="about-menu"></site-menu>
 
     <img
@@ -115,4 +127,6 @@
         </section>
     </main>
 </body>
+
+<div id="container3D"></div>
 </html>

@@ -71,12 +71,18 @@ h3 {
 }
 
 #container3D {
-    position: absolute;
+    position: fixed;
     inset: 0;
     /* background-color: blueviolet; */
     z-index: 100;
-    /* pointer-events: none; FIXME: animation when pointed at? */
+}
 
+/* On non-landing pages the 3D scene is an ambient backdrop only:
+   sits behind page content and never intercepts clicks/scroll/text
+   selection. WASD + Q beam still work since those are keyboard-only. */
+body:not(.landing-page) #container3D {
+    z-index: -1;
+    pointer-events: none;
 }
 
 #landing-container {

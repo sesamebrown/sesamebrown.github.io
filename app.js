@@ -4,6 +4,7 @@ import { mixer, bodyMixer } from './js/ufo.js';
 import { dust } from './js/dust.js';
 import { updateMovement } from './js/movement.js';
 import './js/beam.js';
+import './js/planet.js';
 
 // animation
 const clock = new THREE.Clock();
