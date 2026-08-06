@@ -36,7 +36,7 @@ h1 {
     /* font-family: "Share Tech Mono", monospace; */
     font-family: Arial, Helvetica, sans-serif;
     text-transform: lowercase;
-    transform: scale(1, 1.7);
+    transform: scale(0.7, 2.5);
     letter-spacing: -0.05em;
     color: white;
     z-index: 1;
@@ -104,20 +104,98 @@ body:not(.landing-page) #container3D {
     left: 20px;
     transform: translateY(-50%);
     z-index: 200;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
     width: 200px;
     height: 70%;
-    overflow: auto;
+    overflow: visible;
 }
 
-.menu-buttons {
-    /* background-color: thistle; */
-    color: white;
-    text-decoration: none;
-    z-index: 3000;
+.menu-svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.menu-svg .spine {
+    stroke: rgba(255, 255, 255, 0.5);
+    stroke-width: 1.5;
+    pointer-events: none;
+}
+
+.menu-node a {
+    cursor: pointer;
+}
+
+.menu-node .hit-target {
+    fill: transparent;
+    pointer-events: all;
+}
+
+.menu-icon {
+    fill: white;
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform 0.2s ease;
+    pointer-events: none;
+}
+
+.menu-node:hover .menu-icon {
+    transform: scale(1.3);
+}
+
+.menu-node--home:hover .menu-icon--home {
+    transform: scale(1.2);
+}
+
+/* Orbit motion — pure CSS motion-path, no JS/SMIL involved. Each side
+   icon's --orbit-path custom property (set inline per-node in menu.js)
+   matches its own .orbit-path "d" exactly, so it rides the visible dotted
+   line. offset-path only applies during :hover — outside hover the icon
+   falls back to its normal <use> x/y, which is its correct idle spot on
+   the spine (the arc's own start point is NOT the same location, since
+   the arc is built around Home, not around the icon's idle position). */
+@keyframes orbit-loop {
+    0% { offset-distance: 0%; }
+    50% { offset-distance: 100%; }
+    100% { offset-distance: 0%; }
+}
+
+.menu-node:hover .menu-icon--orbits {
+    offset-path: var(--orbit-path);
+    offset-rotate: 0deg;
+    animation: orbit-loop 4s linear infinite;
+}
+
+.orbit-path {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.6);
+    stroke-width: 1.5;
+    stroke-dasharray: 3 5;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.menu-node:hover .orbit-path {
+    opacity: 1;
+}
+
+.sparkles {
+    pointer-events: none;
+}
+
+.sparkle {
+    fill: white;
+    opacity: 0;
+}
+
+.menu-node--home:hover .sparkle {
+    animation: twinkle 1.2s ease-in-out infinite;
+    animation-delay: var(--delay, 0s);
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
 }
 
 p {
