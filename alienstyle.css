@@ -7,19 +7,29 @@
 
 html, body {
     margin: 0;
-    height: 100%;
-    overflow: hidden;
 }
 
 body {
-    position: relative;
     background-color: black;
     z-index: 1;
     color: white;
     padding: 20px;
     box-sizing: border-box;
+}
+
+/* Full-viewport, no-scroll layout for the 3D landing page only.
+   Scoped so it doesn't leak into normal scrolling content pages
+   (about.html etc.) that share this stylesheet. */
+body.landing-page {
+    height: 100%;
+    overflow: hidden;
     display: flex;
     align-items: center;
+}
+
+html:has(body.landing-page) {
+    height: 100%;
+    overflow: hidden;
 }
 
 h1 {
@@ -50,14 +60,14 @@ h3 {
     align-items: center;
     display: flex;
     flex-direction: column;
-    width: 80%; /* Adjust width as needed */
-    max-width: 600px; /* Optional: set a max width */
+    width: 50%; /* Adjust width as needed */
+    max-width: 500px; /* Optional: set a max width */
     height: 100%; /* Fill the flex row without exceeding it */
 }
 
 #landing-menu {
     /* background-color: green; */
-    margin-right: 20px;
+    /* margin-right: 20px; */
 }
 
 #container3D {
@@ -83,10 +93,11 @@ h3 {
 /* COWS */
 
 .menu {
-    position: absolute;
-    /* top: 20px;
-    bottom: 20px;
-    left: 20px; */
+    position: fixed;
+    top: 50%;
+    left: 20px;
+    transform: translateY(-50%);
+    z-index: 200;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
