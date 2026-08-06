@@ -15,8 +15,9 @@ if (planetFile) {
         scene.add(planet);
 
         gsap.to(planet.rotation, {
-            x: -Math.PI * 2,
-            y: -Math.PI * 2,
+            // x: -Math.PI * 2,
+            // y: -Math.PI * 2,
+            z: -Math.PI * 2,
             duration: 360,
             repeat: -1,
             ease: 'linear',

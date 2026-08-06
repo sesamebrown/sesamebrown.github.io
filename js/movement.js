@@ -28,9 +28,11 @@ window.addEventListener('keyup', (e) => {
 });
 
 const speed = 0.1;
+const followFactor = 0.15; // how quickly the ship eases toward targetPosition each frame
 const cameraRight = new THREE.Vector3();
 const cameraUp = new THREE.Vector3();
 const idlePosition = new THREE.Vector3(0, -2, 0);
+const targetPosition = new THREE.Vector3(); // where WASD wants the ship to be; pilot chases this
 let lastInputTime = Date.now();
 
 export function updateMovement() {
@@ -41,13 +43,16 @@ export function updateMovement() {
     cameraRight.setFromMatrixColumn(camera.matrixWorld, 0);
     cameraUp.setFromMatrixColumn(camera.matrixWorld, 1);
 
-    if (keys.w) pilot.position.addScaledVector(cameraUp, speed);
-    if (keys.s) pilot.position.addScaledVector(cameraUp, -speed);
-    if (keys.a) pilot.position.addScaledVector(cameraRight, -speed);
-    if (keys.d) pilot.position.addScaledVector(cameraRight, speed);
+    if (keys.w) targetPosition.addScaledVector(cameraUp, speed);
+    if (keys.s) targetPosition.addScaledVector(cameraUp, -speed);
+    if (keys.a) targetPosition.addScaledVector(cameraRight, -speed);
+    if (keys.d) targetPosition.addScaledVector(cameraRight, speed);
 
     // If idle for 3 seconds
     if (Date.now() - lastInputTime > 3000) {
-        pilot.position.lerp(idlePosition, 0.02);
+        targetPosition.lerp(idlePosition, 0.02);
     }
+
+    // Ease the actual ship position toward the target instead of snapping to it
+    pilot.position.lerp(targetPosition, followFactor);
 }
