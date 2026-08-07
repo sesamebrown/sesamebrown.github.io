@@ -6,13 +6,18 @@ import { scene } from './scene.js';
 // Not present (e.g. index.html) means no planet on that page.
 const planetFile = document.body.dataset.planet;
 
+// Live bindings — undefined until the GLTF finishes loading. planet-drag.js
+// reads these to raycast against the planet and pause/resume the ambient
+// spin while the user is manually dragging it.
+export let planet;
+export let planetSpinTween;
+
 if (planetFile) {
     const loader = new GLTFLoader();
     loader.load(`/glb/${planetFile}`, (gltf) => {
-        const planet = gltf.scene;
+        planet = gltf.scene;
         planet.scale.setScalar(3);
         planet.position.set(0, -25, -10);
-        // planet.rotation.set(0, 0, -Math.PI / 2);
         scene.add(planet);
 
         // Glow from within: only the textured surface mesh (some planet
@@ -26,9 +31,7 @@ if (planetFile) {
             }
         });
 
-        gsap.to(planet.rotation, {
-            // x: -Math.PI * 2,
-            // y: -Math.PI * 2,
+        planetSpinTween = gsap.to(planet.rotation, {
             z: -Math.PI * 2,
             duration: 360,
             repeat: -1,
