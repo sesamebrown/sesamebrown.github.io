@@ -8,6 +8,7 @@ import './js/planet.js';
 import './js/planet-drag.js';
 import './js/flag-plant.js';
 import './js/scroll-camera.js';
+import './js/scroll-ufo.js';
 
 // animation
 const clock = new THREE.Clock();

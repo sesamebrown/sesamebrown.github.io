@@ -30,6 +30,7 @@ window.addEventListener('keyup', (e) => {
 
 const speed = 0.1;
 const followFactor = 0.15; // how quickly the ship eases toward targetPosition each frame
+const rotationFollowFactor = 0.08; // slower than position, for a lagging turn feel — tune independently
 const cameraRight = new THREE.Vector3();
 const cameraUp = new THREE.Vector3();
 const idlePosition = new THREE.Vector3(...PILOT_SPAWN_POSITION);
@@ -37,7 +38,28 @@ const idlePosition = new THREE.Vector3(...PILOT_SPAWN_POSITION);
 // the pilot would spawn correctly for one frame, then immediately get
 // lerped toward (0,0,0) since that's what this chases every frame.
 const targetPosition = new THREE.Vector3(...PILOT_SPAWN_POSITION); // where WASD wants the ship to be; pilot chases this
+const targetRotation = new THREE.Euler(0, 0, 0); // where scroll wants the ship facing; pilot chases this too (see setScrollTarget)
 let lastInputTime = Date.now();
+
+// Called by scroll-ufo.js when a scroll-tagged section becomes active.
+// Only updates the *targets* — the actual chase (and its lag/delay) is
+// entirely the lerps already running in updateMovement() below, same as
+// WASD. idlePosition is updated too, not just targetPosition: otherwise,
+// after 3s of no WASD input, the "idle drift" a few lines down would pull
+// the ship back toward the original spawn point instead of leaving it at
+// the scroll target.
+export function setScrollTarget(position, rotationDegrees) {
+    targetPosition.set(...position);
+    idlePosition.copy(targetPosition);
+
+    if (rotationDegrees) {
+        targetRotation.set(
+            THREE.MathUtils.degToRad(rotationDegrees[0]),
+            THREE.MathUtils.degToRad(rotationDegrees[1]),
+            THREE.MathUtils.degToRad(rotationDegrees[2])
+        );
+    }
+}
 
 export function updateMovement() {
     if (!ufo) return;
@@ -57,6 +79,12 @@ export function updateMovement() {
         targetPosition.lerp(idlePosition, 0.02);
     }
 
-    // Ease the actual ship position toward the target instead of snapping to it
+    // Ease the actual ship position/rotation toward their targets instead of
+    // snapping. Rotation is a simple per-axis lerp (not a quaternion slerp)
+    // — fine for the small scroll-driven turns this is meant for, matching
+    // how simply position is already handled above.
     pilot.position.lerp(targetPosition, followFactor);
+    pilot.rotation.x += (targetRotation.x - pilot.rotation.x) * rotationFollowFactor;
+    pilot.rotation.y += (targetRotation.y - pilot.rotation.y) * rotationFollowFactor;
+    pilot.rotation.z += (targetRotation.z - pilot.rotation.z) * rotationFollowFactor;
 }
