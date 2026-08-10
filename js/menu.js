@@ -14,10 +14,11 @@ const PAGES = [
     { id: 'guests', href: 'guests.html' }
 ];
 
-const FAN_ANGLE_DEGREES = 90; // total angular spread, centered on the horizontal
+const FAN_ANGLE_DEGREES = 70; // total angular spread, centered on the horizontal
 const BASE_RADIUS = 85;
 const RADIUS_STEP = 150; // each successive planet's orbit grows by this much
 const PLANET_R = 10;
+const LABEL_INSET = 10; // px the label sits inward from the visible orbit ring
 const STAGGER_STEP = 0.06; // seconds between each planet's reveal, for a cascading feel
 const BASE_ORBIT_DURATION = 40; // seconds for the innermost planet's full lap
 const ORBIT_DURATION_STEP = 50; // farther-out planets orbit slower, like real planets
@@ -31,21 +32,39 @@ const PLANETS = PAGES.map((page, i) => {
         ...page,
         x: HUB.x + orbitR * Math.cos(angle),
         y: HUB.y + orbitR * Math.sin(angle),
+        angle,
         r: PLANET_R,
         stagger: i * STAGGER_STEP,
         orbitDuration: BASE_ORBIT_DURATION + i * ORBIT_DURATION_STEP,
     };
 });
 
-// 6 small sparkle points scattered around Home, staggered so they twinkle
-// out of sync with each other rather than all at once.
-const SPARKLES = [
-    [-18, -14, 0], [16, -18, 0.2], [22, 6, 0.4],
-    [-20, 10, 0.6], [4, 24, 0.8], [-2, -26, 1],
-].map(([dx, dy, delay]) => ({ x: HUB.x + dx, y: HUB.y + dy, delay }));
-
 function dist(a, b) {
     return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
+// SVG path tracing a full circle, so a <textPath> can be bound to it (a
+// plain <circle> doesn't have the path-following support text needs). Only
+// ever used for a label's path (the visible ring is a plain <circle>), so
+// its sweep direction (the "0" flags below) is chosen purely for how it
+// makes textPath-bound text read, not for the ring's appearance: sweeping
+// this way keeps curved labels right-side up instead of upside-down. Split
+// into two semicircle arcs — one arc command alone can't close a full loop
+// back to its own start point.
+function circlePathD(cx, cy, r) {
+    return `M ${cx + r},${cy} A ${r},${r} 0 1,0 ${cx - r},${cy} A ${r},${r} 0 1,0 ${cx + r},${cy}`;
+}
+
+// Converts a position angle around HUB into the % along a label's path
+// (circlePathD) where that angle actually sits. The path sweeps the
+// opposite rotational direction from increasing angle (see circlePathD),
+// so this negates the angle before taking its fraction of the full circle.
+// Shared by buildPlanet (initial placement) and setupLabelSafety (its
+// off-screen search) so the two stay in agreement about what a given angle
+// means.
+function angleToStartOffsetPercent(angle) {
+    const normalized = ((-angle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+    return (normalized / (Math.PI * 2)) * 100;
 }
 
 /**
@@ -68,7 +87,6 @@ function buildDefs() {
 // transform-origin is set explicitly here (rather than relying on CSS
 // transform-box: fill-box, which doesn't reliably resolve to a <use>
 // element's own center) so the hover-grow scales the icon in place
-// instead of visibly sliding it toward/away from the SVG origin.
 function buildIconUse(x, y, r, extraClass) {
     return `<use href="#menu-icon-shape" class="menu-icon${extraClass ? ' ' + extraClass : ''}"
             x="${x - r}" y="${y - r}" width="${r * 2}" height="${r * 2}"
@@ -78,16 +96,19 @@ function buildIconUse(x, y, r, extraClass) {
 function buildHome() {
     const r = 16;
     const hitR = 26;
-    const sparkles = SPARKLES.map(
-        (s) => `<circle class="sparkle" cx="${s.x}" cy="${s.y}" r="2" style="--delay:${s.delay}s" />`
-    ).join('');
 
+    // A plain <circle> in the main SVG's own coordinate space, not routed
+    // through buildIconUse's shared unit-circle symbol: that symbol's
+    // viewBox has zero margin around its circle, so a stroke on it (for the
+    // hollow idle state) bled straight to the symbol's square clip edge
+    // instead of forming a ring. Drawn at its real size here, there's no
+    // tight clip box for a stroke to hit.
     return `
         <g class="menu-node menu-node--home" data-id="home">
-            <g class="sparkles">${sparkles}</g>
             <a href="index.html" aria-label="Home">
                 <circle class="hit-target" cx="${HUB.x}" cy="${HUB.y}" r="${hitR}" />
-                ${buildIconUse(HUB.x, HUB.y, r, 'menu-icon--home')}
+                <circle class="menu-icon menu-icon--home" cx="${HUB.x}" cy="${HUB.y}" r="${r}"
+                    style="transform-origin: ${HUB.x}px ${HUB.y}px;" />
             </a>
         </g>`;
 }
@@ -95,15 +116,29 @@ function buildHome() {
 function buildPlanet(node) {
     const orbitR = dist(HUB, node);
     const hitR = node.r + 9;
+    const labelPathId = `orbit-label-path-${node.id}`;
+
+    const startOffsetPercent = angleToStartOffsetPercent(node.angle);
 
     // The reveal (scale-in from the hub, on menu hover) lives on the outer
     // .planet-node group; continuous orbital motion lives on the nested
     // .planet-orbit group. Both are anchored at the same HUB point, so they
     // compose instead of fighting over the same "transform" property —
-    // the planet grows in AND keeps circling at once.
+    // the planet grows in AND keeps circling at once. The orbit ring and
+    // its label live directly on .planet-node too, so they fade/scale in
+    // with the rest of the reveal but don't themselves orbit.
+    //
+    // The label doesn't sit on the visible ring itself — it's bound to a
+    // second, invisible path at a smaller radius (LABEL_INSET) so it reads
+    // just inside the ring instead of straddling the line. Every label's
+    // path is built with the exact same circlePathD (same center, same
+    // start point, same sweep) so they all curve the same way as each
+    // other — startOffset is the only thing that varies per label.
     return `
         <g class="menu-node planet-node" data-id="${node.id}" style="--stagger: ${node.stagger}s">
             <circle class="orbit-ring" cx="${HUB.x}" cy="${HUB.y}" r="${orbitR}" />
+            <path id="${labelPathId}" class="orbit-label-path" d="${circlePathD(HUB.x, HUB.y, orbitR - LABEL_INSET)}" />
+            <text class="orbit-label"><textPath href="#${labelPathId}" startOffset="${startOffsetPercent}%">${node.id}</textPath></text>
             <g class="planet-orbit" style="--orbit-duration: ${node.orbitDuration}s;">
                 <a href="${node.href}" aria-label="${node.id}">
                     <circle class="hit-target" cx="${node.x}" cy="${node.y}" r="${hitR}" />
@@ -138,6 +173,94 @@ class SiteMenu extends HTMLElement {
         this.appendChild(template.content.cloneNode(true));
         this.startOrbiting();
         this.setupOpenState();
+        this.setupGlow();
+        this.setupLabelSafety();
+    }
+
+    // A backdrop behind the menu, fading from opaque black at the screen's
+    // left edge to transparent by the outermost orbit ring's screen
+    // position, so the menu (especially once expanded) reads clearly
+    // against whatever page content sits behind it. Lives on <body>, not
+    // inside this element: .menu has its own `transform`, which would make
+    // it the containing block for a position:fixed child instead of the
+    // real viewport.
+    setupGlow() {
+        const glow = document.createElement('div');
+        glow.className = 'menu-glow';
+        document.body.appendChild(glow);
+
+        const outermost = PLANETS[PLANETS.length - 1];
+        const maxRadius = dist(HUB, outermost) + outermost.r;
+
+        const update = () => {
+            const { x } = this.toScreen(HUB.x + maxRadius, HUB.y);
+            glow.style.width = `${Math.max(0, x)}px`;
+        };
+
+        update();
+        window.addEventListener('resize', update);
+    }
+
+    // A label can land off-screen the same way an orbiting planet can — the
+    // outer rings are far bigger than the viewport, and a label's fixed
+    // startOffset (see buildPlanet) might just happen to fall on a stretch
+    // of ring that's off-canvas. If so, walk that same ring outward from
+    // the label's natural spot, in both directions, looking for a
+    // startOffset where it renders on-screen — same radius throughout, so
+    // it always stays "along the orbital line," just relocated.
+    setupLabelSafety() {
+        const SEARCH_STEP = (10 * Math.PI) / 180; // 10°
+        const MAX_STEPS = Math.ceil(Math.PI / SEARCH_STEP); // half the ring covers every position in either direction
+
+        const setStartOffset = (textPath, angle) => {
+            textPath.setAttribute('startOffset', `${angleToStartOffsetPercent(angle)}%`);
+        };
+
+        const isOffScreen = (textEl) => {
+            const bbox = textEl.getBBox();
+            const a = this.toScreen(bbox.x, bbox.y);
+            const b = this.toScreen(bbox.x + bbox.width, bbox.y + bbox.height);
+            const left = Math.min(a.x, b.x);
+            const right = Math.max(a.x, b.x);
+            const top = Math.min(a.y, b.y);
+            const bottom = Math.max(a.y, b.y);
+
+            return (
+                right < -EDGE_MARGIN ||
+                left > window.innerWidth + EDGE_MARGIN ||
+                bottom < -EDGE_MARGIN ||
+                top > window.innerHeight + EDGE_MARGIN
+            );
+        };
+
+        const place = () => {
+            for (const node of PLANETS) {
+                const textEl = this.querySelector(`.planet-node[data-id="${node.id}"] .orbit-label`);
+                const textPath = textEl.querySelector('textPath');
+
+                setStartOffset(textPath, node.angle);
+                if (!isOffScreen(textEl)) continue;
+
+                for (let i = 1; i <= MAX_STEPS; i++) {
+                    let placed = false;
+
+                    for (const direction of [1, -1]) {
+                        setStartOffset(textPath, node.angle + direction * i * SEARCH_STEP);
+                        if (!isOffScreen(textEl)) {
+                            placed = true;
+                            break;
+                        }
+                    }
+
+                    if (placed) break;
+                    // neither direction fits at this distance yet; keep searching outward
+                }
+                // if nothing on the ring ever fits, it's left at the last candidate tried
+            }
+        };
+
+        place();
+        window.addEventListener('resize', place);
     }
 
     // Whether the menu stays revealed can't be a CSS :hover zone on .menu's
@@ -151,8 +274,14 @@ class SiteMenu extends HTMLElement {
     // orbiting outer planet can take a while, and none of that travel time
     // across empty space should count against a countdown. It only closes
     // after CLOSE_DELAY of the mouse being genuinely still.
+    //
+    // While the cursor sits on Home itself, movement is never allowed to
+    // schedule a close — otherwise ordinary hand jitter while resting on
+    // Home starts the countdown, and the menu can close out from under a
+    // cursor that never actually left it.
     setupOpenState() {
         let closeTimer = null;
+        let overHome = false;
 
         const open = () => {
             clearTimeout(closeTimer);
@@ -167,8 +296,12 @@ class SiteMenu extends HTMLElement {
             hit.addEventListener('pointerenter', open);
         }
 
+        const homeHit = this.querySelector('.menu-node--home .hit-target');
+        homeHit.addEventListener('pointerenter', () => { overHome = true; });
+        homeHit.addEventListener('pointerleave', () => { overHome = false; });
+
         window.addEventListener('pointermove', () => {
-            if (this.classList.contains('menu--open')) scheduleClose();
+            if (this.classList.contains('menu--open') && !overHome) scheduleClose();
         });
     }
 

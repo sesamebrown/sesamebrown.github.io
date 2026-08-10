@@ -1,6 +1,7 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
 import { pilot, camera } from './scene.js';
 import { ufo } from './ufo.js';
+import { PILOT_SPAWN_POSITION } from './constants.js';
 
 const keys = {
     w: false,
@@ -31,8 +32,11 @@ const speed = 0.1;
 const followFactor = 0.15; // how quickly the ship eases toward targetPosition each frame
 const cameraRight = new THREE.Vector3();
 const cameraUp = new THREE.Vector3();
-const idlePosition = new THREE.Vector3(0, -2, 0);
-const targetPosition = new THREE.Vector3(); // where WASD wants the ship to be; pilot chases this
+const idlePosition = new THREE.Vector3(...PILOT_SPAWN_POSITION);
+// Starts at the spawn position (not the Vector3 default (0,0,0)) — otherwise
+// the pilot would spawn correctly for one frame, then immediately get
+// lerped toward (0,0,0) since that's what this chases every frame.
+const targetPosition = new THREE.Vector3(...PILOT_SPAWN_POSITION); // where WASD wants the ship to be; pilot chases this
 let lastInputTime = Date.now();
 
 export function updateMovement() {

@@ -32,6 +32,27 @@ html:has(body.landing-page) {
     overflow: hidden;
 }
 
+.page-content {
+    margin-left: 10em;
+}
+
+/* Opt-in per page: scrolling snaps each <main> section fully into view
+   instead of free-scrolling past it. Pair with js/scroll-camera.js's
+   data-camera / data-camera-target attributes to move the 3D camera
+   along with the snap. */
+html:has(body.snap-sections) {
+    scroll-snap-type: y mandatory;
+}
+
+body.snap-sections main section {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-sizing: border-box;
+    scroll-snap-align: start;
+}
+
 h1 {
     /* font-family: "Share Tech Mono", monospace; */
     font-family: Arial, Helvetica, sans-serif;
@@ -42,9 +63,20 @@ h1 {
     z-index: 1;
 }
 
+h2 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 3em;
+    text-transform: lowercase;
+    transform: scale(0.7, 2.5);
+    transform-origin: left;
+    letter-spacing: -0.05em;
+    margin-bottom: 0.5em;
+}
+
 h3 {
-    color: white;
-    /* opacity: 75%; */
+    /* font-family: Arial, Helvetica, sans-serif; */
+    font-size: 1.25em;
+    margin-bottom: 3em;
 }
 
 #landing-name {
@@ -98,6 +130,27 @@ body:not(.landing-page) #container3D {
 
 /* COWS */
 
+/* Backdrop for the menu's hover area — width is set in px by menu.js
+   (setupGlow), reaching from the screen's left edge to the outermost
+   orbit ring. Sits above ordinary page content (headers, sections) but
+   below the menu itself (z-index 200), so expanding the menu stays
+   legible against busy backgrounds. */
+.menu-glow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0));
+    pointer-events: none;
+    z-index: 150;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+body:has(.menu--open) .menu-glow {
+    opacity: 1;
+}
+
 .menu {
     position: fixed;
     top: 50%;
@@ -142,27 +195,17 @@ body:not(.landing-page) #container3D {
     transform: scale(1.3);
 }
 
+/* Idle: outline only, no fill — the Sun reads as hollow until hovered. */
+.menu-icon--home {
+    fill: none;
+    stroke: white;
+    stroke-width: 2;
+    transition: transform 0.2s ease, fill 0.2s ease;
+}
+
 .menu-node--home:hover .menu-icon--home {
-    transform: scale(1.2);
-}
-
-.sparkles {
-    pointer-events: none;
-}
-
-.sparkle {
     fill: white;
-    opacity: 0;
-}
-
-.menu-node--home:hover .sparkle {
-    animation: twinkle 1.2s ease-in-out infinite;
-    animation-delay: var(--delay, 0s);
-}
-
-@keyframes twinkle {
-    0%, 100% { opacity: 0; }
-    50% { opacity: 1; }
+    transform: scale(1.2);
 }
 
 /* Planets ("pages") sit on orbit rings centered on Home. Everything here
@@ -173,6 +216,18 @@ body:not(.landing-page) #container3D {
     fill: none;
     stroke: rgba(255, 255, 255, 0.35);
     stroke-width: 1;
+    pointer-events: none;
+}
+
+.orbit-label-path {
+    fill: none;
+    stroke: none;
+}
+
+.orbit-label {
+    fill: rgba(255, 255, 255, 0.7);
+    font-size: 15px;
+    text-transform: lowercase;
     pointer-events: none;
 }
 

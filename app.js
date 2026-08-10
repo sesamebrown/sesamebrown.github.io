@@ -7,6 +7,7 @@ import './js/beam.js';
 import './js/planet.js';
 import './js/planet-drag.js';
 import './js/flag-plant.js';
+import './js/scroll-camera.js';
 
 // animation
 const clock = new THREE.Clock();
