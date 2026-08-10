@@ -10,7 +10,7 @@ export function applyPlanetGlow(root) {
         if (child.isMesh && child.material && child.material.map) {
             child.material.emissiveMap = child.material.map;
             child.material.emissive.set('#ffffff');
-            child.material.emissiveIntensity = 1.1;
+            child.material.emissiveIntensity = 1;
         }
     });
 }

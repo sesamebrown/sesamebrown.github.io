@@ -18,6 +18,7 @@ if (planetFile) {
     loader.load(`/glb/${planetFile}`, (gltf) => {
         planet = gltf.scene;
         planet.scale.setScalar(3);
+        planet.rotation.set(0, 30 * (Math.PI / 180), 50 * (Math.PI / 180)); // rotate 90 degrees around Z axis
         planet.position.set(0, -25, -10);
         scene.add(planet);
 
