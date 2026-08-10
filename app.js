@@ -6,6 +6,7 @@ import { updateMovement } from './js/movement.js';
 import './js/beam.js';
 import './js/planet.js';
 import './js/planet-drag.js';
+import './js/flag-plant.js';
 
 // animation
 const clock = new THREE.Clock();

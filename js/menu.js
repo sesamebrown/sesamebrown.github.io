@@ -11,6 +11,7 @@ const PAGES = [
     { id: 'portfolio', href: 'portfolio.html' },
     { id: 'qualifications', href: 'qualifications.html' },
     { id: 'service', href: 'service.html' },
+    { id: 'guests', href: 'guests.html' }
 ];
 
 const FAN_ANGLE_DEGREES = 90; // total angular spread, centered on the horizontal
