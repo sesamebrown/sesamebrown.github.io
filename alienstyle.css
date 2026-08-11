@@ -33,7 +33,7 @@ html:has(body.landing-page) {
 }
 
 .page-content {
-    margin-left: 10em;
+    margin-left: 5em;
 }
 
 /* Opt-in per page: scrolling snaps each <main> section fully into view
@@ -68,15 +68,21 @@ h2 {
     font-size: 3em;
     text-transform: lowercase;
     transform: scale(0.7, 2.5);
-    transform-origin: left;
+    transform-origin: center;
     letter-spacing: -0.05em;
-    margin-bottom: 0.75em;
+    margin-bottom: 1em;
+    /* background-color: red; */
 }
 
 h3 {
-    /* font-family: Arial, Helvetica, sans-serif; */
-    font-size: 1.25em;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1.5em;
+    text-transform: lowercase;
+    transform: scale(0.8, 2.5);
+    transform-origin: left;
+    letter-spacing: -0.04em;
     margin-bottom: 3em;
+    /* background-color: red; */
 }
 
 #landing-name {
@@ -105,7 +111,6 @@ h3 {
 #container3D {
     position: fixed;
     inset: 0;
-    /* background-color: blueviolet; */
     z-index: 100;
 }
 
@@ -267,7 +272,9 @@ body:has(.menu--open) .menu-glow {
 }
 
 p {
-    margin-bottom: 50px;
+    margin: 50px;
+    font-size: 1.25em;
+    /* background-color: red; */
 }
 
 ul {
@@ -278,26 +285,36 @@ ul {
     padding: 30px;
 }
 
+/* Every section's content lives in one of these (see about.html) — shared
+   base sizing so sections read as one consistent design, while each one's
+   own #id below only ever sets *placement* (align-self, text-align) or a
+   one-off internal layout (like #about-me-container's side-by-side rows).
+   Headings/paragraphs themselves stay consistent automatically since h2/h3/p
+   are already styled globally above, not per-section. */
+.section-content {
+    max-width: 900px;
+    margin: 60px;
+    /* background-color: blue; */
+}
+
 #about-me-container {
-    /* display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 50px;
-    width: 80%; */
+    align-self: flex-start;
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    /* text-align: left; */
 }
 
 #background-container {
-    display: flex;
-    flex-direction: column;
-    align-items: right;
-    gap: 50px;
-    width: 80%;
+    align-self: flex-end;
+    text-align: right;
 }
 
-#ufo-image {
-    position: absolute;
-    top: 50px;
-    right: 200px;
-    width: 100px;
-    z-index: 0;
+#academic-goals-container {
+    align-self: flex-start;
 }
+
+#contact-container {
+    align-self: center;
+}
+
