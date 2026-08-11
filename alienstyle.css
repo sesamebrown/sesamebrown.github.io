@@ -70,7 +70,7 @@ h2 {
     transform: scale(0.7, 2.5);
     transform-origin: left;
     letter-spacing: -0.05em;
-    margin-bottom: 0.5em;
+    margin-bottom: 0.75em;
 }
 
 h3 {
@@ -279,9 +279,17 @@ ul {
 }
 
 #about-me-container {
-    display: flex;
+    /* display: flex;
     flex-direction: row;
     align-items: center;
+    gap: 50px;
+    width: 80%; */
+}
+
+#background-container {
+    display: flex;
+    flex-direction: column;
+    align-items: right;
     gap: 50px;
     width: 80%;
 }

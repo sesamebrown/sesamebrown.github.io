@@ -1,5 +1,6 @@
 import { gsap } from 'https://cdn.jsdelivr.net/npm/gsap@3.6.1/index.js';
 import { camera, controls } from './scene.js';
+import { readResponsiveAttr } from './responsive-data.js';
 
 // Opt-in per page. Give a page's body the "snap-sections" class (see
 // alienstyle.css) and add data-camera / data-camera-target attributes
@@ -7,6 +8,11 @@ import { camera, controls } from './scene.js';
 // camera view. The camera eases to that section's values whenever it
 // becomes the section centered in the viewport. Sections without either
 // attribute are left alone — the camera just stays put while they scroll by.
+//
+// Each can have a "-mobile" sibling too (data-camera-mobile,
+// data-camera-target-mobile) — used instead below MOBILE_QUERY's width,
+// since a narrow/portrait viewport frames the scene very differently. See
+// responsive-data.js.
 //
 // NOTE: OrbitControls (scene.js) clamps camera distance from the target
 // to between controls.minDistance and controls.maxDistance. Pick
@@ -29,7 +35,9 @@ if (sections.length) {
             const entry = entries.find((e) => e.isIntersecting);
             if (!entry) return;
 
-            const { camera: cameraAttr, cameraTarget: cameraTargetAttr } = entry.target.dataset;
+            const cameraAttr = readResponsiveAttr(entry.target, 'camera');
+            const cameraTargetAttr = readResponsiveAttr(entry.target, 'cameraTarget');
+
             if (cameraAttr) {
                 gsap.to(camera.position, { ...parseVector(cameraAttr), duration: TWEEN_DURATION, ease: TWEEN_EASE });
             }
