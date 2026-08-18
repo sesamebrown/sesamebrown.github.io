@@ -1,10 +1,11 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/loaders/GLTFLoader.js';
 import { camera } from './scene.js';
-import { planet } from './planet.js';
+import { planets } from './planet.js';
 
 // Only pages that opt in via <body data-flags="true"> get this (currently
 // just guests.html): click the planet surface and a flag plants there.
+// Flags are planted on the page's first (and currently only) planet.
 if (document.body.dataset.flags === 'true') {
     const CLICK_MOVE_THRESHOLD = 6; // px of pointer movement beyond which this is a drag (planet-drag.js's job), not a click
     const FLAG_SCALE = 0.6; // world-space size of a planted flag, independent of the planet's own .scale
@@ -27,6 +28,7 @@ if (document.body.dataset.flags === 'true') {
     });
 
     window.addEventListener('pointerup', (event) => {
+        const planet = planets[0];
         if (!planet || !flagTemplate) return;
 
         const moved = Math.hypot(event.clientX - downX, event.clientY - downY);
@@ -37,10 +39,10 @@ if (document.body.dataset.flags === 'true') {
         raycaster.setFromCamera(pointerNDC, camera);
 
         const hits = raycaster.intersectObject(planet, true);
-        if (hits.length > 0) plantFlag(hits[0]);
+        if (hits.length > 0) plantFlag(planet, hits[0]);
     });
 
-    function plantFlag(hit) {
+    function plantFlag(planet, hit) {
         const worldNormal = hit.face.normal.clone().transformDirection(hit.object.matrixWorld);
         const planetWorldQuat = planet.getWorldQuaternion(new THREE.Quaternion());
         const planetWorldQuatInverse = planetWorldQuat.clone().invert();

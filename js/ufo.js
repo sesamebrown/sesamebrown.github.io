@@ -1,7 +1,7 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/loaders/GLTFLoader.js';
 import { pilot } from './scene.js';
-import { BEAM_HIDDEN_SCALE, PILOT_SPAWN_POSITION } from './constants.js';
+import { BEAM_HIDDEN_SCALE, PILOT_SPAWN_POSITION, PILOT_SPAWN_ROTATION } from './constants.js';
 
 export let ufo;
 export let mixer;
@@ -29,6 +29,7 @@ loader.load('/glb/ufo_3.glb',
         beamObject = root.getObjectByName('Beam') || null;
 
         pilot.position.set(...PILOT_SPAWN_POSITION);
+        pilot.rotation.set(...PILOT_SPAWN_ROTATION);
         pilot.add(root);
 
         ufo = ufoRoot;

@@ -1,6 +1,6 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
 import { camera } from './scene.js';
-import { planet, planetSpinTween } from './planet.js';
+import { planets, planetSpinTweens } from './planet.js';
 
 // Click-and-drag rotation for the planet. #container3D is deliberately
 // pointer-events:none on non-landing pages so the 3D scene never blocks
@@ -13,6 +13,7 @@ const pointer = new THREE.Vector2();
 const ROTATE_SPEED = 0.005;
 
 let dragging = false;
+let draggedIndex = -1;
 let lastX = 0;
 let lastY = 0;
 
@@ -21,29 +22,31 @@ function toNDC(event) {
     pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
 }
 
-function hitsPlanet(event) {
-    if (!planet) return false;
-
+// Returns the index of the planet under the pointer, or -1 if none.
+function hitPlanetIndex(event) {
     toNDC(event);
     raycaster.setFromCamera(pointer, camera);
-    return raycaster.intersectObject(planet, true).length > 0;
+    return planets.findIndex((planet) => raycaster.intersectObject(planet, true).length > 0);
 }
 
 window.addEventListener('pointerdown', (event) => {
-    if (event.button !== 0 || !hitsPlanet(event)) return;
+    if (event.button !== 0) return;
+
+    const index = hitPlanetIndex(event);
+    if (index === -1) return;
 
     dragging = true;
+    draggedIndex = index;
     lastX = event.clientX;
     lastY = event.clientY;
-    if (planetSpinTween) planetSpinTween.pause();
+    planetSpinTweens[index]?.pause();
     document.body.style.cursor = 'grabbing';
     event.preventDefault(); // stop text-selection while dragging
 });
 
 window.addEventListener('pointermove', (event) => {
-    if (!planet) return;
-
     if (dragging) {
+        const planet = planets[draggedIndex];
         planet.rotation.y += (event.clientX - lastX) * ROTATE_SPEED;
         planet.rotation.x += (event.clientY - lastY) * ROTATE_SPEED;
         lastX = event.clientX;
@@ -51,13 +54,14 @@ window.addEventListener('pointermove', (event) => {
         return;
     }
 
-    document.body.style.cursor = hitsPlanet(event) ? 'grab' : '';
+    document.body.style.cursor = hitPlanetIndex(event) !== -1 ? 'grab' : '';
 });
 
 window.addEventListener('pointerup', () => {
     if (!dragging) return;
 
     dragging = false;
-    if (planetSpinTween) planetSpinTween.resume();
+    planetSpinTweens[draggedIndex]?.resume();
+    draggedIndex = -1;
     document.body.style.cursor = '';
 });

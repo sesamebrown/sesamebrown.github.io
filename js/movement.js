@@ -1,7 +1,7 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
 import { pilot, camera } from './scene.js';
 import { ufo } from './ufo.js';
-import { PILOT_SPAWN_POSITION } from './constants.js';
+import { PILOT_SPAWN_POSITION, PILOT_SPAWN_ROTATION } from './constants.js';
 
 const keys = {
     w: false,
@@ -40,7 +40,7 @@ const idlePosition = new THREE.Vector3(...PILOT_SPAWN_POSITION);
 // the pilot would spawn correctly for one frame, then immediately get
 // lerped toward (0,0,0) since that's what this chases every frame.
 const targetPosition = new THREE.Vector3(...PILOT_SPAWN_POSITION); // where WASD (or scroll) wants the ship to be; pilot chases this
-const targetRotation = new THREE.Euler(0, 0, 0); // where scroll wants the ship facing; pilot chases this too (see setScrollTarget)
+const targetRotation = new THREE.Euler(...PILOT_SPAWN_ROTATION); // where scroll wants the ship facing; pilot chases this too (see setScrollTarget)
 let lastInputTime = Date.now();
 // True while the ship should be chasing targetPosition at scrollFollowFactor
 // instead of followFactor — set by setScrollTarget, cleared the instant WASD

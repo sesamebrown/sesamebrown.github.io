@@ -1,34 +1,70 @@
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/loaders/GLTFLoader.js';
 import { gsap } from 'https://cdn.jsdelivr.net/npm/gsap@3.6.1/index.js';
 import { scene } from './scene.js';
 import { applyPlanetGlow } from './planet-utils.js';
 
-// Which planet model to load is set per-page via <body data-planet="...">.
-// Not present (e.g. index.html) means no planet on that page.
-const planetFile = document.body.dataset.planet;
+// Which planets to load is set per-page via <body data-page="...">.
+// Not present (e.g. index.html, which uses home-planets.js instead) means
+// no planet on that page. Add more entries to a page's array to place
+// additional planets in that scene — position: [x,y,z], scale: uniform
+// multiplier, rotation: [x,y,z] in radians.
+const DEG = Math.PI / 180;
+const PAGE_PLANETS = {
+    portfolio: [
+        { file: 'fishplanet.glb', position: [0, -10, 0], scale: 3, rotation: [0, 30 * DEG, 50 * DEG] },
+    ],
+    about: [
+        { file: 'saturn.glb', position: [0, -25, -10], scale: 3, rotation: [0, 30 * DEG, 50 * DEG] },
+    ],
+    guests: [
+        { file: 'moon.glb', position: [0, -25, -10], scale: 3, rotation: [0, 30 * DEG, 50 * DEG] },
+    ],
+    service: [
+        { file: 'mars.glb', position: [0, -25, -10], scale: 3, rotation: [0, 30 * DEG, 50 * DEG] },
+    ],
+    qualifications: [
+        { file: 'jupiter.glb', position: [0, -25, -10], scale: 3, rotation: [0, 30 * DEG, 50 * DEG] },
+    ],
+};
 
-// Live bindings — undefined until the GLTF finishes loading. planet-drag.js
-// reads these to raycast against the planet and pause/resume the ambient
-// spin while the user is manually dragging it.
-export let planet;
-export let planetSpinTween;
+// Live bindings — entries appear only once their GLTF finishes loading.
+// planet-drag.js reads these to raycast against the planets and pause/resume
+// the ambient spin of whichever one is being dragged.
+export const planets = [];
+export const planetSpinTweens = [];
+export const planetMixers = [];
 
-if (planetFile) {
+const pageConfigs = PAGE_PLANETS[document.body.dataset.page] || [];
+
+if (pageConfigs.length) {
     const loader = new GLTFLoader();
-    loader.load(`/glb/${planetFile}`, (gltf) => {
-        planet = gltf.scene;
-        planet.scale.setScalar(3);
-        planet.rotation.set(0, 30 * (Math.PI / 180), 50 * (Math.PI / 180)); // rotate 90 degrees around Z axis
-        planet.position.set(0, -25, -10);
-        scene.add(planet);
+    for (const { file, position, scale, rotation } of pageConfigs) {
+        loader.load(`/glb/${file}`, (gltf) => {
+            const planet = gltf.scene;
+            planet.scale.setScalar(scale);
+            planet.rotation.set(...rotation);
+            planet.position.set(...position);
+            scene.add(planet);
 
-        applyPlanetGlow(planet);
+            applyPlanetGlow(planet);
 
-        planetSpinTween = gsap.to(planet.rotation, {
-            z: -Math.PI * 2,
-            duration: 360,
-            repeat: -1,
-            ease: 'linear',
+            if (gltf.animations.length > 0) {
+                const mixer = new THREE.AnimationMixer(planet);
+                for (const clip of gltf.animations) {
+                    mixer.clipAction(clip).play();
+                }
+                planetMixers.push(mixer);
+            }
+
+            planets.push(planet);
+            planetSpinTweens.push(gsap.to(planet.rotation, {
+                z: planet.rotation.z - Math.PI * 2,
+                duration: 360,
+                repeat: -1,
+                ease: 'linear',
+            }));
+
         });
-    });
+    }
 }

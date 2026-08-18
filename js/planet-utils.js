@@ -7,7 +7,10 @@
 // is what distinguishes the actual planet surface).
 export function applyPlanetGlow(root) {
     root.traverse((child) => {
-        if (child.isMesh && child.material && child.material.map) {
+        // .emissive is absent on materials with no lighting model to glow
+        // via (e.g. MeshBasicMaterial, which glTF's KHR_materials_unlit
+        // exports become) — nothing to do for those, so skip rather than throw.
+        if (child.isMesh && child.material && child.material.map && child.material.emissive) {
             child.material.emissiveMap = child.material.map;
             child.material.emissive.set('#ffffff');
             child.material.emissiveIntensity = 1;
