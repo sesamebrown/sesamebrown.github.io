@@ -13,6 +13,7 @@ const DEG = Math.PI / 180;
 const PAGE_PLANETS = {
     portfolio: [
         { file: 'fishplanet.glb', position: [0, -10, 0], scale: 3, rotation: [0, 30 * DEG, 50 * DEG] },
+        { file: 'alien.glb', position: [0, 0, 2], scale: 6, rotation: [0, 180 * DEG, 0] },
     ],
     about: [
         { file: 'saturn.glb', position: [0, -25, -10], scale: 3, rotation: [0, 30 * DEG, 50 * DEG] },
@@ -51,9 +52,13 @@ if (pageConfigs.length) {
 
             if (gltf.animations.length > 0) {
                 const mixer = new THREE.AnimationMixer(planet);
-                for (const clip of gltf.animations) {
-                    mixer.clipAction(clip).play();
-                }
+                // Some models (e.g. alien.glb) export multiple clips for
+                // the same skeleton — playing all of them at once would
+                // have them fight over the same bones, so just the idle
+                // loop plays (falling back to the first clip for
+                // single-animation files like fishplanet.glb).
+                const idleClip = gltf.animations.find((clip) => clip.name.toLowerCase() === 'idle') || gltf.animations[0];
+                mixer.clipAction(idleClip).play();
                 planetMixers.push(mixer);
             }
 

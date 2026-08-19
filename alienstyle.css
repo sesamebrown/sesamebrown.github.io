@@ -36,21 +36,17 @@ html:has(body.landing-page) {
     margin-left: 5em;
 }
 
-/* Opt-in per page: scrolling snaps each <main> section fully into view
-   instead of free-scrolling past it. Pair with js/scroll-camera.js's
-   data-camera / data-camera-target attributes to move the 3D camera
-   along with the snap. */
-html:has(body.snap-sections) {
-    scroll-snap-type: y mandatory;
-}
-
+/* Opt-in per page: lays out each <main> section to fill the viewport, one
+   per scroll "beat", for free (non-snapping) scrolling. Pair with
+   js/scroll-camera.js's data-camera / data-camera-target attributes to
+   ease the 3D camera to a new view whenever a section becomes the one
+   centered in the viewport. */
 body.snap-sections main section {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     box-sizing: border-box;
-    scroll-snap-align: start;
 }
 
 h1 {
@@ -65,7 +61,7 @@ h1 {
 
 h2 {
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 3em;
+    font-size: 5em;
     text-transform: lowercase;
     transform: scale(0.7, 2.5);
     transform-origin: center;
@@ -76,13 +72,39 @@ h2 {
 
 h3 {
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 1.5em;
+    font-size: 2em;
     text-transform: lowercase;
-    transform: scale(0.8, 2.5);
+    transform: scale(1, 2.5);
     transform-origin: left;
     letter-spacing: -0.04em;
     margin-bottom: 3em;
-    /* background-color: red; */
+    -webkit-text-stroke: 0.5px white;
+    color: transparent;
+
+}
+
+/* Pairs a section's h2 with its subtitle h3 (see about.html): grid-area
+   stacking overlaps them exactly, regardless of either element's own
+   margins, without resorting to manual position:absolute offsets. */
+.heading-stack {
+    display: grid;
+    grid-template-areas: "stack";
+}
+
+.heading-stack > h2,
+.heading-stack > h3 {
+    grid-area: stack;
+}
+
+.heading-stack > h2 {
+    z-index: 1;
+}
+
+.heading-stack > h3 {
+    font-size: 5em;
+    opacity: 0.3;
+    margin: auto;
+    z-index: 0;
 }
 
 #landing-name {
@@ -273,7 +295,7 @@ body:has(.menu--open) .menu-glow {
 
 p {
     margin: 50px;
-    font-size: 1.25em;
+    font-size: 1.5em;
     /* background-color: red; */
 }
 
