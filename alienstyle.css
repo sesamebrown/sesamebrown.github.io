@@ -70,7 +70,10 @@ h2 {
     /* background-color: red; */
 }
 
-h3 {
+/* Scoped to the portfolio page only (see data-page on <body>) — other
+   pages' h3 elements (about.html's .heading-stack subtitles, "Relevant
+   Coursework", etc.) fall back to the browser default instead of this. */
+body[data-page="portfolio"] h3 {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 2em;
     text-transform: lowercase;
@@ -138,11 +141,52 @@ h3 {
 
 /* On non-landing pages the 3D scene is an ambient backdrop only:
    sits behind page content and never intercepts clicks/scroll/text
-   selection. WASD + Q beam still work since those are keyboard-only. */
+   selection. WASD/QE flight + F beam still work since those are keyboard-only. */
 body:not(.landing-page) #container3D {
     z-index: -1;
     pointer-events: none;
 }
+
+/* Debug: the about page's UFO scene allows OrbitControls drag-orbit/pan
+   and scroll-to-zoom. Two things had to change from the ambient-backdrop
+   rule above: (1) negative z-index elements never receive hit-tests in
+   most browsers — clicks land on <body> instead of descending into
+   them — so z-index is bumped to 0 here (the canvas is still alpha:true,
+   so it stays visually transparent except where 3D geometry actually
+   draws); (2) the full-bleed <section> boxes in .page-content have no
+   background but still occupy the whole viewport, so they'd swallow
+   every pointer/wheel event before it reached the canvas — .page-content
+   is set click-through here, with form controls opted back in so the
+   contact form still works. pointer-events: auto alone isn't enough for
+   those form controls though — the canvas sits at z-index: 0, so without
+   its own stacking context .section-content (and the form inside it)
+   still paints underneath the canvas and the click never reaches the
+   input/textarea/button, hence the last rule below.
+   To disable: this comment stays put — select only the rules below (from
+   the DEBUG START marker to the DEBUG END marker) and toggle-comment them
+   in your editor. CSS comments can't nest, so including this comment in
+   that selection would break the block. */
+/* --- DEBUG START --- */
+body.about-page #container3D {
+    z-index: 0;
+    pointer-events: auto;
+}
+
+body.about-page .page-content {
+    pointer-events: none;
+}
+
+body.about-page .page-content input,
+body.about-page .page-content textarea,
+body.about-page .page-content button {
+    pointer-events: auto;
+}
+
+body.about-page .section-content {
+    position: relative;
+    z-index: 1;
+}
+/* --- DEBUG END --- */
 
 #landing-container {
   perspective: 800px;

@@ -7,7 +7,9 @@ const keys = {
     w: false,
     a: false,
     s: false,
-    d: false
+    d: false,
+    q: false,
+    e: false
 };
 
 // keyboard input
@@ -21,6 +23,16 @@ window.addEventListener('keydown', (e) => {
     }
 });
 
+// --- DEBUG START: press i to log the UFO's current position, formatted to
+// paste straight into a data-ufo-position attribute. Select this block and
+// toggle-comment it to disable. ---
+window.addEventListener('keydown', (e) => {
+    if (e.key.toLowerCase() === 'i' && !e.repeat) {
+        console.log('UFO position:', `${Math.round(pilot.position.x)},${Math.round(pilot.position.y)},${Math.round(pilot.position.z)}`);
+    }
+});
+// --- DEBUG END ---
+
 window.addEventListener('keyup', (e) => {
     const key = e.key.toLowerCase();
 
@@ -33,8 +45,9 @@ const speed = 0.1;
 const followFactor = 0.15; // how quickly the ship eases toward targetPosition each frame, under WASD control
 const scrollFollowFactor = 0.05; // same, but while chasing a scroll-set target (see scrollActive below) — tune independently of WASD's feel
 const scrollRotationFollowFactor = 0.08; // slower than position, for a lagging turn feel — rotation is scroll-only, WASD never sets targetRotation
+const cameraForward = new THREE.Vector3();
 const cameraRight = new THREE.Vector3();
-const cameraUp = new THREE.Vector3();
+const worldUp = new THREE.Vector3(0, 1, 0);
 const idlePosition = new THREE.Vector3(...PILOT_SPAWN_POSITION);
 // Starts at the spawn position (not the Vector3 default (0,0,0)) — otherwise
 // the pilot would spawn correctly for one frame, then immediately get
@@ -72,15 +85,19 @@ export function setScrollTarget(position, rotationDegrees) {
 export function updateMovement() {
     if (!ufo) return;
 
-    // Camera's own right/up axes, so WASD stays in the on-screen plane
-    // no matter how OrbitControls has orbited the camera.
+    // Default game controls, free-flying in 3D instead of locked to the
+    // on-screen plane: W/S move forward/back and A/D strafe along wherever
+    // the camera is currently looking, Q/E move straight down/up in world
+    // space regardless of camera pitch.
+    camera.getWorldDirection(cameraForward);
     cameraRight.setFromMatrixColumn(camera.matrixWorld, 0);
-    cameraUp.setFromMatrixColumn(camera.matrixWorld, 1);
 
-    if (keys.w) targetPosition.addScaledVector(cameraUp, speed);
-    if (keys.s) targetPosition.addScaledVector(cameraUp, -speed);
+    if (keys.w) targetPosition.addScaledVector(cameraForward, speed);
+    if (keys.s) targetPosition.addScaledVector(cameraForward, -speed);
     if (keys.a) targetPosition.addScaledVector(cameraRight, -speed);
     if (keys.d) targetPosition.addScaledVector(cameraRight, speed);
+    if (keys.q) targetPosition.addScaledVector(worldUp, -speed);
+    if (keys.e) targetPosition.addScaledVector(worldUp, speed);
 
     // If idle for 3 seconds
     if (Date.now() - lastInputTime > 3000) {

@@ -18,6 +18,14 @@ camera.position.z = 100;
 camera.position.y = 10;
 camera.rotateX(-0.2);
 
+// --- DEBUG START: world axes at the origin (red=X, green=Y, blue=Z) —
+// about page only, to help read data-camera/data-ufo-position values while
+// tuning. Select this block and toggle-comment it to disable. ---
+const axesHelper = new THREE.AxesHelper(50);
+axesHelper.visible = document.body.classList.contains('about-page');
+scene.add(axesHelper);
+// --- DEBUG END ---
+
 // light
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
 scene.add(ambientLight);

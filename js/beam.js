@@ -133,7 +133,7 @@ function playBeamShrink() {
     });
 }
 
-// Whichever of these is pending — killed on the next Q press so a fast
+// Whichever of these is pending — killed on the next F press so a fast
 // double-tap can't leave a stale showBeamObject/playBeamShrink call to
 // fire after the beam's already gone the other way.
 let pendingBeamObjectAction = null;
@@ -142,7 +142,7 @@ let pendingBeamObjectAction = null;
 window.addEventListener('keydown', (e) => {
     const key = e.key.toLowerCase();
 
-    if (key === 'q') {
+    if (key === 'f') {
         if (e.repeat) return;
 
         beamOn = !beamOn;
