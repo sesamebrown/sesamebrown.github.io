@@ -23,12 +23,13 @@ window.addEventListener('keydown', (e) => {
     }
 });
 
-// --- DEBUG START: press i to log the UFO's current position, formatted to
-// paste straight into a data-ufo-position attribute. Select this block and
-// toggle-comment it to disable. ---
+// --- DEBUG START: press i to log the UFO's and camera's current position,
+// formatted to paste straight into data-ufo-position/data-camera
+// attributes. Select this block and toggle-comment it to disable. ---
 window.addEventListener('keydown', (e) => {
     if (e.key.toLowerCase() === 'i' && !e.repeat) {
         console.log('UFO position:', `${Math.round(pilot.position.x)},${Math.round(pilot.position.y)},${Math.round(pilot.position.z)}`);
+        console.log('Camera position:', `${Math.round(camera.position.x)},${Math.round(camera.position.y)},${Math.round(camera.position.z)}`);
     }
 });
 // --- DEBUG END ---
@@ -59,6 +60,15 @@ let lastInputTime = Date.now();
 // instead of followFactor — set by setScrollTarget, cleared the instant WASD
 // is pressed (see the keydown listener above) so WASD always wins control.
 let scrollActive = false;
+// --- DEBUG START: lets debug-camera.js pause ship WASDQE while it's
+// borrowing those same keys for free-fly camera movement, so the ship
+// doesn't silently fly off in the background. Select this block (and the
+// !shipMovementEnabled check below) and toggle-comment to disable. ---
+let shipMovementEnabled = true;
+export function setShipMovementEnabled(enabled) {
+    shipMovementEnabled = enabled;
+}
+// --- DEBUG END ---
 
 // Called by scroll-ufo.js when a scroll-tagged section becomes active.
 // Only updates the *targets* — the actual chase (and its lag/delay) is
@@ -83,7 +93,7 @@ export function setScrollTarget(position, rotationDegrees) {
 }
 
 export function updateMovement() {
-    if (!ufo) return;
+    if (!ufo || !shipMovementEnabled) return;
 
     // Default game controls, free-flying in 3D instead of locked to the
     // on-screen plane: W/S move forward/back and A/D strafe along wherever

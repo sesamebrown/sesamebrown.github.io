@@ -24,8 +24,14 @@
 
     <div class="page-content">
         <main>
-            <!-- data-camera / data-camera-target below are placeholder vantage
-                points (see js/scroll-camera.js) — tune the x,y,z to taste. -->
+            <!-- This first section uses a literal data-camera (see
+                js/scroll-camera.js) — its own placeholder vantage point,
+                tune the x,y,z to taste. Sections after it use
+                data-spiral-t instead: the camera eases along the actual
+                downward-spring curve from js/spiral-path.js to reach that
+                t value (0-1), rather than cutting straight through the
+                inside of the spiral like a plain x/y/z tween would. This
+                section's own 0,10,100 is exactly that curve's t=0. -->
             <section data-camera="0,10,100" data-camera-target="0,0,0" data-ufo-position="4,4.5,35" data-ufo-rotation="10,-30,-10"
                 data-camera-mobile="0,0,0" data-camera-target-mobile="10,-10,20" data-ufo-position-mobile="0,0,0" data-ufo-rotation-mobile="0,40,0">
                 <div class="section-content" id="about-me-container">
@@ -40,7 +46,7 @@
                 </div>
             </section>
 
-            <section data-camera="37,-6,92" data-camera-target="0,-25,-10" data-ufo-position="10,-13,50" data-ufo-rotation="0,0,0">
+            <section data-spiral-t="0.25" data-camera-target="0,-25,-10" data-ufo-position="10,-13,50" data-ufo-rotation="0,0,0">
                 <div class="section-content" id="background-container">
                     <div class="heading-stack">
                         <h2>Background</h2>
@@ -55,7 +61,7 @@
                 </div>
             </section>
 
-            <section data-camera="50,-25,-70" data-camera-target="28, -36, -14" data-ufo-position="28, -36, -14" data-ufo-rotation="0,40,0">
+            <section data-spiral-t="0.5" data-camera-target="0,-25,-10" data-ufo-position="28, -36, -14" data-ufo-rotation="0,40,0">
                 <div class="section-content" id="academic-goals-container">
                     <div class="heading-stack">
                         <h2>Academic & Career Goals</h2>
@@ -83,7 +89,7 @@
                 </div>
             </section>
 
-            <section data-camera="-51,-44,-19" data-camera-target="-19,-55,-49" data-ufo-position="-19,-55,-49" data-ufo-rotation="0,40,0">
+            <section data-spiral-t="0.75" data-camera-target="0,-25,-10" data-ufo-position="-17,-54,-20" data-ufo-rotation="0,0,0">
                 <div class="section-content" id="contact-container">
                     <h2>Get in Touch</h2>
                     <p>

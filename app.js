@@ -9,6 +9,10 @@ import './js/planet-drag.js';
 import './js/flag-plant.js';
 import './js/scroll-camera.js';
 import './js/scroll-ufo.js';
+// --- DEBUG START: comment out this import and the two lines below marked
+// DEBUG to disable the free-fly debug camera (see js/debug-camera.js). ---
+import { updateDebugCamera, getActiveCamera } from './js/debug-camera.js';
+// --- DEBUG END ---
 
 // animation
 const clock = new THREE.Clock();
@@ -17,7 +21,8 @@ const animate = () => {
     requestAnimationFrame(animate);
     controls.update();
     updateMovement();
-    renderer.render(scene, camera);
+    updateDebugCamera(); // DEBUG — see js/debug-camera.js
+    renderer.render(scene, getActiveCamera()); // DEBUG — swap back to renderer.render(scene, camera) if disabling
 
     const delta = clock.getDelta();
     if (mixer) mixer.update(delta);
