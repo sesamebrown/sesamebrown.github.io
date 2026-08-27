@@ -21,8 +21,8 @@ const cameraHelper = new THREE.CameraHelper(camera);
 cameraHelper.visible = false;
 scene.add(cameraHelper);
 
-// Traces the same downward-spring equation the sections' data-camera
-// waypoints (t=0, 0.5, 1) are sampled from — see spiral-path.js.
+// Traces the same downward-spring equation the sections' data-spiral-t
+// waypoints ease along — see spiral-path.js.
 const SPIRAL_SAMPLES = 200;
 const spiralPoints = [];
 for (let i = 0; i <= SPIRAL_SAMPLES; i++) {

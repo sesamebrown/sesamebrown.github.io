@@ -23,13 +23,21 @@ import { getSpiralPosition } from './spiral-path.js';
 // A section can use data-spiral-t="<0-1>" instead of data-camera: rather
 // than tweening straight-line x/y/z (which cuts across the inside of the
 // spiral's curve instead of following it), this eases a single t value
-// along spiral-path.js's equation, recomputing the actual position every
-// tween frame — so the camera travels along the real curve the whole way,
-// not just at the two endpoints. spiralState.t assumes the page starts at
-// t=0 (see scene.js's initial camera position, which matches spiral-path's
-// start point exactly) and is kept in sync whenever a plain data-camera
-// section becomes active instead — currently only the very first section,
-// whose own data-camera also happens to equal t=0.
+// along spiral-path.js's equation. spiralState.t assumes the page starts
+// at t=0 (see scene.js's initial camera position, which matches
+// spiral-path's start point exactly) and is kept in sync whenever a plain
+// data-camera section becomes active instead — currently only the very
+// first section, whose own data-camera also happens to equal t=0.
+//
+// While spiralActive is true, applySpiralPosition() (called from app.js,
+// after controls.update() each frame) hard-sets camera.position from the
+// live spiralState.t every frame — not just during the tween. This is
+// necessary, not just tidy: OrbitControls silently clamps camera.position
+// to maxDistance every time controls.update() runs, so setting position
+// from a GSAP onUpdate callback (which fires on GSAP's own ticker, before
+// controls.update() in the frame) would just get clamped straight back
+// off the curve. Running after controls.update() instead bypasses that
+// clamp, the same way the spiral needed to for its size to read at all.
 
 const TWEEN_DURATION = 1.2; // seconds
 const TWEEN_EASE = 'power2.inOut';
@@ -40,6 +48,11 @@ function parseVector(str) {
 }
 
 const spiralState = { t: 0 };
+let spiralActive = true; // page starts at the spiral's own t=0, see comment above
+
+export function applySpiralPosition() {
+    if (spiralActive) camera.position.copy(getSpiralPosition(spiralState.t));
+}
 
 const sections = document.querySelectorAll('main section[data-camera], main section[data-camera-target], main section[data-spiral-t]');
 
@@ -54,13 +67,10 @@ if (sections.length) {
             const cameraTargetAttr = readResponsiveAttr(entry.target, 'cameraTarget');
 
             if (spiralTAttr) {
-                gsap.to(spiralState, {
-                    t: parseFloat(spiralTAttr),
-                    duration: TWEEN_DURATION,
-                    ease: TWEEN_EASE,
-                    onUpdate: () => camera.position.copy(getSpiralPosition(spiralState.t)),
-                });
+                spiralActive = true;
+                gsap.to(spiralState, { t: parseFloat(spiralTAttr), duration: TWEEN_DURATION, ease: TWEEN_EASE });
             } else if (cameraAttr) {
+                spiralActive = false; // hand position control back to the plain tween below
                 spiralState.t = 0; // only non-spiral section right now is the first one, which is exactly t=0
                 gsap.to(camera.position, { ...parseVector(cameraAttr), duration: TWEEN_DURATION, ease: TWEEN_EASE });
             }

@@ -7,7 +7,7 @@ import './js/beam.js';
 import { planetMixers } from './js/planet.js';
 import './js/planet-drag.js';
 import './js/flag-plant.js';
-import './js/scroll-camera.js';
+import { applySpiralPosition } from './js/scroll-camera.js';
 import './js/scroll-ufo.js';
 // --- DEBUG START: comment out this import and the two lines below marked
 // DEBUG to disable the free-fly debug camera (see js/debug-camera.js). ---
@@ -20,6 +20,7 @@ const clock = new THREE.Clock();
 const animate = () => {
     requestAnimationFrame(animate);
     controls.update();
+    applySpiralPosition(); // must run after controls.update() — see scroll-camera.js for why
     updateMovement();
     updateDebugCamera(); // DEBUG — see js/debug-camera.js
     renderer.render(scene, getActiveCamera()); // DEBUG — swap back to renderer.render(scene, camera) if disabling
