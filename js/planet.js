@@ -12,8 +12,9 @@ import { applyPlanetGlow } from './planet-utils.js';
 const DEG = Math.PI / 180;
 const PAGE_PLANETS = {
     portfolio: [
-        { file: 'fishplanet.glb', position: [0, -10, 0], scale: 3, rotation: [0, 30 * DEG, 50 * DEG] },
-        { file: 'alien.glb', position: [0, 0, 2], scale: 6, rotation: [0, 180 * DEG, 0] },
+        // { file: 'fishplanet.glb', position: [0, -10, 0], scale: 3, rotation: [0, 30 * DEG, 50 * DEG] },
+        // { file: 'alien.glb', position: [0, 0, 2], scale: 6, rotation: [0, 180 * DEG, 0] },
+        { file: 'earth.glb', position: [0, -5, -50], scale: 1, rotation: [0, 30 * DEG, 50 * DEG] },
     ],
     about: [
         { file: 'saturn.glb', position: [0, -25, -10], scale: 3, rotation: [0, 30 * DEG, 50 * DEG] },
