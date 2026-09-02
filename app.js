@@ -6,6 +6,8 @@ import { updateMovement } from './js/movement.js';
 import './js/beam.js';
 import { planetMixers } from './js/planet.js';
 import './js/planet-drag.js';
+import { updateOrbitObjects } from './js/orbit-objects.js';
+import './js/orbit-objects-click.js';
 import './js/flag-plant.js';
 import { applySpiralPosition } from './js/scroll-camera.js';
 import './js/scroll-ufo.js';
@@ -29,6 +31,7 @@ const animate = () => {
     if (mixer) mixer.update(delta);
     if (bodyMixer) bodyMixer.update(delta);
     for (const planetMixer of planetMixers) planetMixer.update(delta);
+    updateOrbitObjects(delta);
     updateDust(delta);
 };
 animate();

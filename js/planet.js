@@ -10,7 +10,9 @@ import { applyPlanetGlow } from './planet-utils.js';
 // additional planets in that scene — position: [x,y,z], scale: uniform
 // multiplier, rotation: [x,y,z] in radians.
 const DEG = Math.PI / 180;
-const PAGE_PLANETS = {
+// Exported so orbit-objects.js can anchor the orb gallery to the exact
+// same coordinates as the portfolio planet without duplicating them.
+export const PAGE_PLANETS = {
     portfolio: [
         // { file: 'fishplanet.glb', position: [0, -10, 0], scale: 3, rotation: [0, 30 * DEG, 50 * DEG] },
         // { file: 'alien.glb', position: [0, 0, 2], scale: 6, rotation: [0, 180 * DEG, 0] },

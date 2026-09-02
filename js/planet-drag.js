@@ -1,6 +1,7 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
 import { camera } from './scene.js';
 import { planets, planetSpinTweens } from './planet.js';
+import { orbitObjects, orbGroup } from './orbit-objects.js';
 
 // Click-and-drag rotation for the planet. #container3D is deliberately
 // pointer-events:none on non-landing pages so the 3D scene never blocks
@@ -11,6 +12,12 @@ import { planets, planetSpinTweens } from './planet.js';
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 const ROTATE_SPEED = 0.005;
+// How far the orb gallery turns per pixel of drag (radians). Applied in
+// world space so a drag turns the orb the same way no matter its current
+// orientation. Only the portfolio page has an orb; elsewhere this is skipped.
+const ORB_DRAG_SPEED = 0.01;
+const _orbSpin = new THREE.Quaternion();
+const _orbSpinEuler = new THREE.Euler();
 
 let dragging = false;
 let draggedIndex = -1;
@@ -47,8 +54,18 @@ window.addEventListener('pointerdown', (event) => {
 window.addEventListener('pointermove', (event) => {
     if (dragging) {
         const planet = planets[draggedIndex];
-        planet.rotation.y += (event.clientX - lastX) * ROTATE_SPEED;
-        planet.rotation.x += (event.clientY - lastY) * ROTATE_SPEED;
+        const dx = event.clientX - lastX;
+        const dy = event.clientY - lastY;
+        planet.rotation.y += dx * ROTATE_SPEED;
+        planet.rotation.x += dy * ROTATE_SPEED;
+        // Turn the orb gallery in whatever direction the drag went. Horizontal
+        // drag spins it about the world Y axis, vertical about world X; premultiply
+        // so the rotation is applied in world space and composes freely.
+        if (orbitObjects.length) {
+            _orbSpinEuler.set(dy * ORB_DRAG_SPEED, dx * ORB_DRAG_SPEED, 0, 'XYZ');
+            _orbSpin.setFromEuler(_orbSpinEuler);
+            orbGroup.quaternion.premultiply(_orbSpin);
+        }
         lastX = event.clientX;
         lastY = event.clientY;
         return;
