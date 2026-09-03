@@ -1,7 +1,7 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
 import { camera } from './scene.js';
 import { planets, planetSpinTweens } from './planet.js';
-import { orbitObjects, orbGroup } from './orbit-objects.js';
+import { orbitObjects, orbGroup, pick } from './orbit-objects.js';
 
 // Click-and-drag rotation for the planet. #container3D is deliberately
 // pointer-events:none on non-landing pages so the 3D scene never blocks
@@ -38,6 +38,7 @@ function hitPlanetIndex(event) {
 
 window.addEventListener('pointerdown', (event) => {
     if (event.button !== 0) return;
+    if (pick(event.clientX, event.clientY)) return; // a front orbit object owns this press
 
     const index = hitPlanetIndex(event);
     if (index === -1) return;
